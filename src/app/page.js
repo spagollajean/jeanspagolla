@@ -1,6 +1,7 @@
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import VioraShowcase from '@/components/VioraShowcase';
+import VioraBanner from '@/components/VioraBanner';
 import InflationQuiz from '@/components/InflationQuiz';
 import VioraCalculator from '@/components/VioraCalculator';
 import VillainSection from '@/components/VillainSection';
@@ -22,6 +23,7 @@ export default function Home() {
       <Header />
       <Hero />
       <VioraShowcase />
+      <VioraBanner />
       <InflationQuiz />
       <VioraCalculator />
       <VillainSection />
