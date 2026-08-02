@@ -16,6 +16,7 @@ import GuaranteeSection from '@/components/GuaranteeSection';
 import FaqAccordion from '@/components/FaqAccordion';
 import SocialProofToast from '@/components/SocialProofToast';
 import StickyMobileBar from '@/components/StickyMobileBar';
+import Footer from '@/components/Footer';
 
 export default function Home() {
   return (
@@ -37,18 +38,7 @@ export default function Home() {
       <GuaranteeSection />
       <FaqAccordion />
       
-      {/* Site Footer */}
-      <footer className="site-footer">
-        <div className="wrap">
-          <div className="logo" style={{ justifyContent: 'center', marginBottom: '1rem' }}>
-            Ren<em>ascer</em> <span className="viora-badge-logo">Viora AI</span>
-          </div>
-          <p>© 2026 Protocolo Renascer & Viora Health Technologies. Todos os direitos reservados.</p>
-          <p style={{ fontSize: '0.75rem', marginTop: '0.5rem', color: 'var(--bone-faint)' }}>
-            Este produto não substitui o parecer médico profissional. Sempre consulte um médico para questões de saúde.
-          </p>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Dynamic Floating UI Elements */}
       <SocialProofToast />

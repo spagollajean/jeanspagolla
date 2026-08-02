@@ -463,6 +463,13 @@ export default function CheckoutPage() {
                   <>Entrar e continuar <ArrowRight size={16} /></>
                 )}
               </button>
+
+              <p style={{ fontSize: '0.72rem', color: 'var(--bone-faint)', textAlign: 'center', marginTop: '0.9rem' }}>
+                Ao continuar, você concorda com os{' '}
+                <a href="/termos" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--bone-soft)', textDecoration: 'underline' }}>Termos de Uso</a>
+                {' '}e a{' '}
+                <a href="/privacidade" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--bone-soft)', textDecoration: 'underline' }}>Política de Privacidade</a>.
+              </p>
             </form>
           ) : (
             <div>

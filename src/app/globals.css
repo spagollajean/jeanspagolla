@@ -1144,4 +1144,23 @@ section { position: relative; }
 .checkout-loading svg { animation: spin 0.9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Legal pages (Termos, Privacidade, Exclusão de Dados) */
+.legal-page { min-height: 60vh; }
+.legal-updated { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 2.4rem; }
+.legal-body h2 { font-family: var(--font-serif); font-size: 1.3rem; color: var(--ink); margin: 2.2rem 0 0.9rem; }
+.legal-body h2:first-child { margin-top: 0; }
+.legal-body p { color: var(--ink-soft); line-height: 1.75; margin: 0 0 1rem; }
+.legal-body ul { margin: 0 0 1.2rem; padding-left: 1.3rem; color: var(--ink-soft); line-height: 1.75; }
+.legal-body li { margin-bottom: 0.5rem; }
+.legal-body strong { color: var(--ink); }
+.legal-body a { color: var(--ochre-deep); text-decoration: underline; }
+.legal-body .legal-callout {
+  background: var(--cream-1);
+  border: 1px solid var(--line-light);
+  border-radius: var(--radius-md);
+  padding: 1.4rem 1.6rem;
+  margin: 1.6rem 0;
+}
+.legal-body .legal-callout h3 { font-family: var(--font-serif); font-size: 1.05rem; color: var(--ink); margin: 0 0 0.7rem; }
+
 @media (min-width: 900px) { .sticky-cta-bar { display: none; } }
