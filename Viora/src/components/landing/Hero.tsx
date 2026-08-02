@@ -24,9 +24,9 @@ const Hero: React.FC<HeroProps> = ({ onRegister }) => {
     fileInputRef.current?.click();
   };
 
-  const scrollToPricing = (e: React.MouseEvent) => {
+  const scrollToHowItWorks = (e: React.MouseEvent) => {
     e.preventDefault();
-    const element = document.getElementById('pricing');
+    const element = document.getElementById('how-it-works');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
@@ -110,7 +110,7 @@ const Hero: React.FC<HeroProps> = ({ onRegister }) => {
                 )}
               </button>
               <button
-                onClick={scrollToPricing}
+                onClick={scrollToHowItWorks}
                 className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-gray-200 hover:border-brand-300 hover:bg-brand-50/30 text-gray-700 px-8 py-4 rounded-xl text-lg font-medium transition-all shadow-sm cursor-pointer"
               >
                 {t.hero.ctaPlans}

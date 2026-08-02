@@ -34,7 +34,6 @@ const Header: React.FC<HeaderProps> = ({ onRegister, onLogin, onOpenTools, onNav
   const navLinks = [
     { name: t.header.howItWorks, id: 'how-it-works' },
     { name: t.header.features, id: 'features' },
-    { name: t.header.pricing, id: 'pricing' },
   ];
 
   const toggleLang = (lang: 'pt' | 'en' | 'es') => {

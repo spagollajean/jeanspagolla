@@ -69,7 +69,6 @@ const Footer: React.FC<FooterProps> = ({ onRegister, onNavigate }) => {
             <ul className="space-y-3 text-sm">
               <li><a href="#how-it-works" onClick={(e) => handleHomeClick(e, 'how-it-works')} className="hover:text-brand-400 transition-colors">{t.header.howItWorks}</a></li>
               <li><a href="#features" onClick={(e) => handleHomeClick(e, 'features')} className="hover:text-brand-400 transition-colors">{t.header.features}</a></li>
-              <li><a href="#pricing" onClick={(e) => handleHomeClick(e, 'pricing')} className="hover:text-brand-400 transition-colors">{t.header.pricing}</a></li>
               <li>
                 <a href="/faq" className="hover:text-brand-400 transition-colors text-left">
                   FAQ / Ajuda

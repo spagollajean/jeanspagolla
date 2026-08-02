@@ -8,7 +8,6 @@ import CoachHighlight from '@/components/landing/CoachHighlight';
 import HowItWorks from '@/components/landing/HowItWorks';
 import Features from '@/components/landing/Features';
 import Testimonials from '@/components/landing/Testimonials';
-import Pricing from '@/components/landing/Pricing';
 import FAQ from '@/components/landing/FAQ';
 import Footer from '@/components/landing/Footer';
 import LoginModal from '@/components/modals/RegistrationModal';
@@ -52,7 +51,6 @@ export default function Home() {
         <HowItWorks />
         <Features />
         <Testimonials />
-        <Pricing onRegister={handleRegister} />
         <FAQ />
       </main>
       <Footer onRegister={handleRegister} />

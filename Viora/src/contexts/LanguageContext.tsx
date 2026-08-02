@@ -313,7 +313,7 @@ const dictionary: Record<Language, Translations> = {
       titleHighlight: 'com apenas uma foto.',
       subtitle: 'O Viora elimina a necessidade de pesar comida. Tire uma foto e nossa Inteligência Artificial calcula calorias, macros e te dá dicas em tempo real para atingir seu peso ideal.',
       ctaUpload: 'Testar IA Agora',
-      ctaPlans: 'Ver Preços',
+      ctaPlans: 'Como Funciona',
       stats: '25k+ refeições otimizadas',
       analysis: 'Raio-X Nutricional',
       demoTag: 'Análise Viora',
@@ -422,7 +422,7 @@ const dictionary: Record<Language, Translations> = {
       q3: 'A IA acerta sempre?',
       a3: 'Nossa IA tem precisão superior a 90% para alimentos comuns. Em pratos muito misturados, ela faz a melhor estimativa possível baseada em padrões visuais.',
       q4: 'Como cancelo?',
-      a4: 'Super simples. Dentro do seu painel de usuário, há um botão "Gerenciar Assinatura". Cancele quando quiser com um clique.'
+      a4: 'Super simples. No seu painel, em "Meu Plano", tem o botão "Cancelar Assinatura". Você mantém o acesso até o fim do período já pago.'
     },
     faqPage: {
       title: 'Central de Ajuda',
@@ -449,10 +449,9 @@ const dictionary: Record<Language, Translations> = {
         billing: {
           title: 'Planos e Pagamento',
           items: [
-            { q: 'Quais as formas de pagamento?', a: 'Aceitamos Pix e cartões de crédito (Visa, Mastercard, Elo, Amex) através da plataforma segura da Efí.' },
-            { q: 'Tem fidelidade?', a: 'O plano mensal não tem fidelidade. Os planos trimestrais e anuais possuem o compromisso pelo período contratado em troca de um desconto maior.' },
-            { q: 'Como cancelo?', a: 'Acesse o Painel do Usuário > Minha Assinatura > Portal do Cliente. Lá você pode cancelar a renovação automática a qualquer momento.' },
-            { q: 'Tenho reembolso?', a: 'Sim, oferecemos garantia incondicional de 7 dias para novos assinantes. Se não gostar, devolvemos 100% do valor.' }
+            { q: 'Quais as formas de pagamento?', a: 'Aceitamos cartão de crédito, através da plataforma segura da Stripe.' },
+            { q: 'Tem fidelidade?', a: 'Não. O plano é mensal, sem fidelidade — cancele quando quiser.' },
+            { q: 'Como cancelo?', a: 'No seu Painel, em "Meu Plano", tem o botão "Cancelar Assinatura". Seu acesso PRO continua até o fim do período já pago.' }
           ]
         },
         technical: {
@@ -661,7 +660,7 @@ const dictionary: Record<Language, Translations> = {
       titleHighlight: 'simplified in one snap.',
       subtitle: 'More than just calories. Our AI analyzes nutrient quality, suggests smart swaps, and optimizes your diet in real-time.',
       ctaUpload: 'Live Demo',
-      ctaPlans: 'View Pro Plans',
+      ctaPlans: 'How it Works',
       stats: '10k+ meals analyzed',
       analysis: 'Full Analysis',
       demoTag: 'Insight',
@@ -797,10 +796,9 @@ const dictionary: Record<Language, Translations> = {
         billing: {
           title: 'Plans & Billing',
           items: [
-            { q: 'Payment methods?', a: 'We accept Pix and credit cards (Visa, Mastercard, Amex) via the secure Efí platform.' },
-            { q: 'Is there a contract?', a: 'The monthly plan has no contract. Quarterly and annual plans have a commitment for the contracted period in exchange for a discount.' },
-            { q: 'How to cancel?', a: 'Go to User Dashboard > My Subscription > Customer Portal. You can cancel auto-renewal there anytime.' },
-            { q: 'Refund policy?', a: 'Yes, we offer an unconditional 7-day guarantee for new subscribers. If you don\'t like it, we refund 100%.' }
+            { q: 'Payment methods?', a: 'We accept credit cards via the secure Stripe platform.' },
+            { q: 'Is there a contract?', a: 'No. The plan is month-to-month — cancel anytime, no commitment.' },
+            { q: 'How to cancel?', a: 'In your Dashboard, under "My Plan", there\'s a "Cancel Subscription" button. You keep PRO access until the end of the period you already paid for.' }
           ]
         },
         technical: {
@@ -1009,7 +1007,7 @@ const dictionary: Record<Language, Translations> = {
       titleHighlight: 'simplificada en una foto.',
       subtitle: 'Mucho más que calorías. Nuestra IA analiza la calidad de los nutrientes, sugiere cambios inteligentes y optimiza tu dieta en tiempo real.',
       ctaUpload: 'Demostración',
-      ctaPlans: 'Ver Planes Pro',
+      ctaPlans: 'Cómo Funciona',
       stats: '10k+ platos analizados',
       analysis: 'Análisis Completo',
       demoTag: 'Perspectiva',
@@ -1145,10 +1143,9 @@ const dictionary: Record<Language, Translations> = {
         billing: {
           title: 'Planes y Pagos',
           items: [
-            { q: '¿Métodos de pago?', a: 'Aceptamos Pix y tarjetas de crédito (Visa, Mastercard, Amex) a través de la plataforma segura Efí.' },
-            { q: '¿Hay permanencia?', a: 'El plan mensual no tiene permanencia. Los planes trimestrales y anuales tienen compromiso por el período contratado a cambio de un descuento.' },
-            { q: '¿Cómo cancelo?', a: 'Accede al Panel de Usuario > Mi Suscripción > Portal de Cliente. Puedes cancelar la renovación automática allí en cualquier momento.' },
-            { q: '¿Política de reembolso?', a: 'Sí, ofrecemos garantía incondicional de 7 días para nuevos suscriptores. Si no te gusta, devolvemos el 100%.' }
+            { q: '¿Métodos de pago?', a: 'Aceptamos tarjeta de crédito a través de la plataforma segura Stripe.' },
+            { q: '¿Hay permanencia?', a: 'No. El plan es mensual, sin permanencia — cancela cuando quieras.' },
+            { q: '¿Cómo cancelo?', a: 'En tu Panel, en "Mi Plan", está el botón "Cancelar Suscripción". Mantienes el acceso PRO hasta el fin del período ya pagado.' }
           ]
         },
         technical: {
