@@ -5,6 +5,7 @@ import Dashboard from '@/views/Dashboard';
 import { useUser } from '@/contexts/UserContext';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { MAIN_SITE_URL } from '@/lib/site';
 
 export default function DashboardPage() {
   const { user, loading, logout, toggleAdminView, refreshProfile } = useUser();
@@ -30,7 +31,7 @@ export default function DashboardPage() {
   // redirect), então aqui não precisa de polling.
   if (user.plan === 'free') {
     if (typeof window !== 'undefined') {
-      router.replace('/checkout');
+      window.location.href = `${MAIN_SITE_URL}/checkout`;
     }
     return null;
   }

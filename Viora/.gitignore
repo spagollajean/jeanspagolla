@@ -43,6 +43,9 @@ out/
 scratch/
 backups/
 
+# Supabase CLI local cache (project-ref, versions, tokens)
+supabase/.temp/
+
 .vercel
 .env*
 

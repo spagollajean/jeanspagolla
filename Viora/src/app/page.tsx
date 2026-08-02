@@ -14,6 +14,7 @@ import Footer from '@/components/landing/Footer';
 import LoginModal from '@/components/modals/RegistrationModal';
 import CalculatorsModal from '@/components/modals/CalculatorsModal';
 import { useUser } from '@/contexts/UserContext';
+import { MAIN_SITE_URL } from '@/lib/site';
 
 export default function Home() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -21,9 +22,10 @@ export default function Home() {
   const router = useRouter();
   const { refreshProfile } = useUser();
 
-  // Todos os CTAs de "Assinar" vão direto para /checkout
+  // Todos os CTAs de "Assinar" vão direto pro checkout do site principal —
+  // o Viora não processa pagamento.
   const handleRegister = () => {
-    router.push('/checkout');
+    window.location.href = `${MAIN_SITE_URL}/checkout`;
   };
 
   // Botão "Entrar" no header abre o modal de login

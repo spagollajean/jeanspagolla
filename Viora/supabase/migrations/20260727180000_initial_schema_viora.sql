@@ -1,4 +1,4 @@
--- Estrutura inicial do Viora, migrada do schema public do FoodSnap (projeto mnhgpnqkwuqzpvfrwftp).
+-- Estrutura inicial do Viora, migrada do schema public do projeto de origem.
 --
 -- Deixadas de fora de propósito (confirmado: não usadas em nenhum script ativo do
 -- Windmill nem no app): check_analysis_access, check_access_by_whatsapp -- essa
@@ -9,7 +9,7 @@
 -- deste arquivo dizia) -- e chamada via RPC por 4 dos scripts do Windmill
 -- (Fetch_User_State, Process_Food_AI, Process_Body_AI, Daily_Summary, Send_Reminders).
 -- Ela depende da view user_entitlements, criada em 20260604_enrich_database.sql
--- do FoodSnap original como camada de retrocompatibilidade sobre a tabela
+-- do projeto original como camada de retrocompatibilidade sobre a tabela
 -- subscriptions (user_entitlements chegou a ser uma TABELA de verdade, foi
 -- dropada no master_reset.sql e virou VIEW depois).
 
@@ -213,7 +213,7 @@ AS $function$
   select regexp_replace(coalesce(t,''), '\D', '', 'g');
 $function$;
 
--- prefixo trocado de 'FS-' (FoodSnap) para 'VI-' (Viora).
+-- prefixo trocado para 'VI-' (Viora).
 -- gen_random_bytes vive no schema "extensions" neste self-hosted (nao em "public"),
 -- por isso precisa dele no search_path.
 CREATE OR REPLACE FUNCTION public.make_public_id(prefix text DEFAULT 'VI-'::text)

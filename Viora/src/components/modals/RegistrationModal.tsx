@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ArrowRight, Loader2, Lock, Mail, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
+import { MAIN_SITE_URL } from '@/lib/site';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -167,7 +168,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 
               <p className="text-center text-gray-500 text-sm mt-5">
                 Não tem conta?{' '}
-                <a href="/checkout" className="font-semibold text-brand-600 hover:text-brand-700 hover:underline">
+                <a href={`${MAIN_SITE_URL}/checkout`} className="font-semibold text-brand-600 hover:text-brand-700 hover:underline">
                   Assinar agora →
                 </a>
               </p>

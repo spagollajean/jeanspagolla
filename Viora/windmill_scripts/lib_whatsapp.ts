@@ -22,56 +22,6 @@ export function normalizePhoneBR(raw: string): string {
   return d;
 }
 
-// ── Telemetria de custo de IA → painel Saas Master ──────────────────────────
-// Insere direto na tabela ai_usage_logs do Supabase do PAINEL (não do Viora)
-// via REST. Vars no Windmill: SAASMASTER_SUPABASE_URL + SAASMASTER_SERVICE_KEY.
-// Sempre chamar dentro de try/catch no script — telemetria nunca pode derrubar
-// a resposta ao usuário.
-
-const SAASMASTER_FOODSNAP_PROJECT_ID = "1d0590b9-6fe3-4793-a9b7-ef5ea29f4b23";
-
-// USD por 1M de tokens (entrada/saída). Modelo fora da tabela = custo 0 com
-// flag price_unknown no metadata (tokens ficam registrados mesmo assim).
-const OPENAI_PRICING: Record<string, { input: number; output: number }> = {
-  "gpt-4o": { input: 2.5, output: 10 },
-  "gpt-5.4-mini": { input: 0.75, output: 4.5 },
-};
-
-export async function reportAiUsage(
-  saasmasterUrl: string,
-  saasmasterServiceKey: string,
-  model: string,
-  usage: { prompt_tokens?: number; completion_tokens?: number } | null | undefined,
-  metadata?: Record<string, unknown>,
-): Promise<void> {
-  const tokensIn = usage?.prompt_tokens ?? 0;
-  const tokensOut = usage?.completion_tokens ?? 0;
-  const price = OPENAI_PRICING[model];
-  const costUsd = price
-    ? (tokensIn * price.input + tokensOut * price.output) / 1_000_000
-    : 0;
-
-  await fetch(`${saasmasterUrl.replace(/\/$/, "")}/rest/v1/ai_usage_logs`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: saasmasterServiceKey,
-      Authorization: `Bearer ${saasmasterServiceKey}`,
-      Prefer: "return=minimal",
-    },
-    body: JSON.stringify({
-      project_id: SAASMASTER_FOODSNAP_PROJECT_ID,
-      provider: "openai",
-      model,
-      tokens_input: tokensIn,
-      tokens_output: tokensOut,
-      units: 1,
-      cost_usd: Number(costUsd.toFixed(6)),
-      metadata: { ...(metadata ?? {}), ...(price ? {} : { price_unknown: true }) },
-    }),
-  });
-}
-
 export function generatePhoneCandidates(raw: string): string[] {
   if (!raw) return [];
   const candidates: string[] = [];

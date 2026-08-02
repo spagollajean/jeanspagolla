@@ -1,4 +1,6 @@
 import './globals.css';
+import { MetaPixel } from '@/components/MetaPixel';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 
 export const metadata = {
   metadataBase: new URL('https://www.jeanspagolla.com.br'),
@@ -75,6 +77,8 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         {children}
+        <MetaPixel />
+        <GoogleAnalytics />
       </body>
     </html>
   );

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useUser } from '@/contexts/UserContext';
+import { MAIN_SITE_URL } from '@/lib/site';
 
 
 interface HeaderProps {
@@ -152,7 +153,7 @@ const Header: React.FC<HeaderProps> = ({ onRegister, onLogin, onOpenTools, onNav
                   Olá, {user.name.split(' ')[0]}
                 </span>
                 <Link
-                  href={user.plan === 'pro' ? "/dashboard" : "/checkout"}
+                  href={user.plan === 'pro' ? "/dashboard" : `${MAIN_SITE_URL}/checkout`}
                   className="group bg-brand-600 hover:bg-brand-700 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-md shadow-brand-500/20 flex items-center gap-2 hover:-translate-y-0.5 cursor-pointer whitespace-nowrap"
                 >
                   {user.plan === 'pro' ? 'Acessar Painel' : 'Assinar Agora'}
@@ -224,7 +225,7 @@ const Header: React.FC<HeaderProps> = ({ onRegister, onLogin, onOpenTools, onNav
                   <span className="text-sm font-medium text-gray-700">Olá, {user.name.split(' ')[0]} 👋</span>
                 </div>
                 <Link
-                  href={user.plan === 'pro' ? "/dashboard" : "/checkout"}
+                  href={user.plan === 'pro' ? "/dashboard" : `${MAIN_SITE_URL}/checkout`}
                   onClick={() => setMobileMenuOpen(false)}
                   className="bg-brand-600 text-white text-center py-3.5 rounded-xl font-semibold shadow-md w-full block"
                 >

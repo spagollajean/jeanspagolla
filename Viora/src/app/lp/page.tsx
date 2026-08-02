@@ -15,16 +15,16 @@
 
 import React, { useEffect } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { fbq } from '@/lib/fbpixel';
 import { gtag } from '@/lib/ga';
+import { MAIN_SITE_URL } from '@/lib/site';
 import {
   Camera, Zap, TrendingUp, TrendingDown, Check, ArrowRight, ShieldCheck,
   MessageCircle, FileText, Scan, Flame, Dumbbell, Salad, Activity,
   Sparkles, ChevronRight,
 } from 'lucide-react';
 
-const CHECKOUT = '/checkout?utm_source=lp-classic';
+const CHECKOUT = `${MAIN_SITE_URL}/checkout?utm_source=lp-classic`;
 
 // ── Botão CTA principal (verde neon com glow) ────────────────────────────────
 function CtaButton({ onClick, children, big = false }: { onClick: () => void; children: React.ReactNode; big?: boolean }) {
@@ -49,8 +49,7 @@ export default function ClassicLanding() {
     gtag('event', 'view_item', { items: [{ item_name: 'lp-classic' }] });
   }, []);
 
-  const router = useRouter();
-  const go = (method?: 'pix') => router.push(method ? `${CHECKOUT}&method=pix` : CHECKOUT);
+  const go = (method?: 'pix') => { window.location.href = method ? `${CHECKOUT}&method=pix` : CHECKOUT; };
 
   return (
     <div className="bg-gray-900 text-white font-sans overflow-x-hidden">

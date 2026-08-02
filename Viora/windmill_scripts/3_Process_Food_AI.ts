@@ -1,7 +1,7 @@
 //nobundling
 import * as wmill from "windmill-client";
 import { createClient } from "@supabase/supabase-js";
-import { generatePhoneCandidates, markReadWithTyping, reportAiUsage } from "/u/admin/lib_whatsapp";
+import { generatePhoneCandidates, markReadWithTyping } from "/u/admin/lib_whatsapp";
 
 /**
  * Windmill Script 3: Process Food Image with OpenAI
@@ -268,15 +268,6 @@ Formato OBRIGATÓRIO:
 
     const aiData = await aiResponse.json();
     let aiContent = aiData.choices?.[0]?.message?.content;
-
-    // Telemetria de custo → painel Saas Master. Nunca pode derrubar o fluxo.
-    try {
-        const smUrl = await wmill.getVariable("u/admin/SAASMASTER_SUPABASE_URL") as string;
-        const smKey = await wmill.getVariable("u/admin/SAASMASTER_SERVICE_KEY") as string;
-        await reportAiUsage(smUrl, smKey, "gpt-4o", aiData.usage, { script: "food_analysis", phone: sender_number });
-    } catch (telemetryErr) {
-        console.error("Telemetria de IA falhou (ignorado):", telemetryErr);
-    }
 
     if (!aiContent) throw new Error("Sem resposta válida da OpenAI.");
 

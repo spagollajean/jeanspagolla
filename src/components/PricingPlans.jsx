@@ -14,6 +14,7 @@ export default function PricingPlans() {
             <span className="tag-pill" style={{ margin: '0 auto 1.2rem auto' }}>Renascer Essencial</span>
 
             <div className="offer-price-row">
+              <span className="offer-old">De R$297</span>
               <span className="offer-new">R$59,90 <small style={{ fontSize: '0.9rem', color: 'var(--bone-soft)' }}>/mês</small></span>
             </div>
             <p style={{ color: 'var(--bone-soft)', fontSize: '0.9rem', margin: '0.4rem 0 1.2rem', textAlign: 'center' }}>Menos que uma única sessão avulsa de personal trainer.</p>
@@ -45,7 +46,7 @@ export default function PricingPlans() {
             <span className="tag-pill tag-pill--viora" style={{ margin: '0 auto 1.2rem auto' }}>Renascer Completo</span>
 
             <div className="offer-price-row">
-              <span className="offer-old">De R$197</span>
+              <span className="offer-old">De R$397</span>
               <span className="offer-new">R$79,90 <small style={{ fontSize: '0.9rem', color: 'var(--bone-soft)' }}>/mês</small></span>
             </div>
             <p style={{ color: 'var(--bone-soft)', fontSize: '0.9rem', margin: '0.4rem 0 1.2rem', textAlign: 'center' }}>Cobrança diária comigo e com o Viora, direto no seu WhatsApp.</p>

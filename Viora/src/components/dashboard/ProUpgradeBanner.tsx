@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Zap, ShieldCheck, BrainCircuit, LineChart, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { MAIN_SITE_URL } from '@/lib/site';
 
 interface ProUpgradeBannerProps {
     onUpgradeClick?: () => void; // fallback (e.g. navigate to sub tab)
@@ -14,7 +15,7 @@ export default function ProUpgradeBanner({ onUpgradeClick }: ProUpgradeBannerPro
 
     const handleUpgrade = async () => {
         setLoading(true);
-        window.location.href = '/checkout';
+        window.location.href = `${MAIN_SITE_URL}/checkout`;
     };
 
     return (

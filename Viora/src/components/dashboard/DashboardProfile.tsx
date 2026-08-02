@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { MAIN_SITE_URL } from '@/lib/site';
 import { toast } from 'sonner';
 import { User as UserIcon, Mail, Phone, Calendar, ShieldCheck, Zap, AlertTriangle, Loader2, CreditCard } from 'lucide-react';
 
@@ -17,7 +18,7 @@ export default function DashboardProfile({ user, refreshProfile }: DashboardProf
   const [isCanceling, setIsCanceling] = useState(false);
 
   const handleCheckout = () => {
-    window.location.href = '/checkout';
+    window.location.href = `${MAIN_SITE_URL}/checkout`;
   };
 
   const handleCancel = async () => {
@@ -29,7 +30,10 @@ export default function DashboardProfile({ user, refreshProfile }: DashboardProf
         return;
       }
 
-      const res = await fetch('/api/efi/cancel', {
+      // O cancelamento de fato (chave da Stripe, webhook etc.) mora só no site
+      // principal -- o Viora só chama a API pública de lá, autenticado com o
+      // mesmo token de sessão do Supabase (projeto compartilhado).
+      const res = await fetch(`${MAIN_SITE_URL}/api/stripe/cancel`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${session.access_token}` },
       });

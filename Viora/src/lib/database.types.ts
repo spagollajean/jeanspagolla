@@ -167,6 +167,7 @@ export type Database = {
           amount: number
           created_at: string
           efi_charge_id: string | null
+          stripe_invoice_id: string | null
           id: string
           payment_method: string | null
           plan_type: string
@@ -177,6 +178,7 @@ export type Database = {
           amount: number
           created_at?: string
           efi_charge_id?: string | null
+          stripe_invoice_id?: string | null
           id?: string
           payment_method?: string | null
           plan_type?: string
@@ -187,6 +189,7 @@ export type Database = {
           amount?: number
           created_at?: string
           efi_charge_id?: string | null
+          stripe_invoice_id?: string | null
           id?: string
           payment_method?: string | null
           plan_type?: string
@@ -217,6 +220,7 @@ export type Database = {
           cpf: string | null
           created_at: string | null
           efi_payment_token: string | null
+          stripe_customer_id: string | null
           email: string | null
           full_name: string | null
           id: string
@@ -236,6 +240,7 @@ export type Database = {
           cpf?: string | null
           created_at?: string | null
           efi_payment_token?: string | null
+          stripe_customer_id?: string | null
           email?: string | null
           full_name?: string | null
           id: string
@@ -255,6 +260,7 @@ export type Database = {
           cpf?: string | null
           created_at?: string | null
           efi_payment_token?: string | null
+          stripe_customer_id?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
@@ -268,6 +274,8 @@ export type Database = {
           cancel_at_period_end: boolean | null
           created_at: string | null
           efi_subscription_id: string | null
+          stripe_subscription_id: string | null
+          stripe_customer_id: string | null
           plan: string | null
           status: string | null
           updated_at: string | null
@@ -278,6 +286,8 @@ export type Database = {
           cancel_at_period_end?: boolean | null
           created_at?: string | null
           efi_subscription_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_customer_id?: string | null
           plan?: string | null
           status?: string | null
           updated_at?: string | null
@@ -288,6 +298,8 @@ export type Database = {
           cancel_at_period_end?: boolean | null
           created_at?: string | null
           efi_subscription_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_customer_id?: string | null
           plan?: string | null
           status?: string | null
           updated_at?: string | null

@@ -1050,4 +1050,80 @@ section { position: relative; }
 
 .sticky-cta-bar.active { transform: translateY(0); }
 
+/* Checkout (Viora PRO) */
+.checkout-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  background:
+    radial-gradient(ellipse 800px 500px at 90% -10%, rgba(16, 185, 129, 0.12), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 5% 110%, rgba(192, 138, 52, 0.14), transparent 60%),
+    var(--dark-0);
+}
+
+.checkout-card {
+  width: 100%;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: 1fr;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--line-dark);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (min-width: 860px) {
+  .checkout-card { grid-template-columns: 1fr 1fr; }
+}
+
+.checkout-summary { background: var(--dark-1); padding: clamp(1.8rem, 4vw, 2.6rem); display: flex; flex-direction: column; justify-content: space-between; }
+.checkout-form-col { background: var(--dark-0); padding: clamp(1.8rem, 4vw, 2.6rem); display: flex; flex-direction: column; justify-content: center; min-height: 460px; }
+
+.checkout-logo { font-family: var(--font-serif); font-weight: 600; font-size: 1.2rem; color: var(--bone); display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.6rem; }
+
+.checkout-price-row { display: flex; align-items: baseline; justify-content: space-between; background: var(--dark-2); border: 1px solid var(--line-dark); border-radius: var(--radius); padding: 1rem 1.2rem; margin-top: 1.6rem; }
+.checkout-price-row .label { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--bone-faint); }
+.checkout-price-row .value { font-family: var(--font-serif); font-size: 1.4rem; color: var(--bone); }
+.checkout-price-row .value--accent { color: var(--viora-emerald); }
+
+.checkout-features { margin-top: 1.6rem; display: grid; gap: 0.8rem; }
+.checkout-features li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.92rem; color: var(--bone-soft); }
+.checkout-features li svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 0.15rem; color: var(--viora-emerald); }
+
+.checkout-trust { display: flex; align-items: center; gap: 1.2rem; margin-top: 1.8rem; padding-top: 1.4rem; border-top: 1px solid var(--line-dark); color: var(--bone-faint); font-size: 0.72rem; }
+.checkout-trust span { display: flex; align-items: center; gap: 0.4rem; }
+
+.checkout-error { background: rgba(162, 75, 44, 0.15); border: 1px solid rgba(162, 75, 44, 0.4); color: #E7A088; border-radius: var(--radius); padding: 0.8rem 1rem; font-size: 0.82rem; margin-bottom: 1.2rem; }
+
+.checkout-input-wrap { position: relative; margin-bottom: 0.8rem; }
+.checkout-input-wrap svg { position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--bone-faint); width: 15px; height: 15px; }
+.checkout-input {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  padding: 0.8rem 0.9rem 0.8rem 2.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-dark);
+  background: var(--dark-2);
+  color: var(--bone);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.checkout-input:focus { border-color: var(--viora-emerald); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
+.checkout-input::placeholder { color: var(--bone-faint); }
+
+.checkout-toggle-eye { position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--bone-faint); cursor: pointer; background: none; border: none; display: flex; }
+
+.checkout-divider { display: flex; align-items: center; gap: 0.8rem; margin: 1.1rem 0; }
+.checkout-divider::before, .checkout-divider::after { content: ''; flex: 1; height: 1px; background: var(--line-dark); }
+.checkout-divider span { font-size: 0.72rem; color: var(--bone-faint); white-space: nowrap; }
+
+.checkout-embed { border-radius: var(--radius-md); overflow: hidden; background: var(--bone); min-height: 320px; }
+
+.checkout-loading { display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 3rem 0; color: var(--bone-faint); font-size: 0.88rem; }
+.checkout-loading svg { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
 @media (min-width: 900px) { .sticky-cta-bar { display: none; } }

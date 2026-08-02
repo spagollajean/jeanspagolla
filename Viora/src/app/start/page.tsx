@@ -8,7 +8,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { MAIN_SITE_URL } from '@/lib/site';
 
 type Msg =
   | { kind: 'bot'; text: string }
@@ -80,7 +80,6 @@ function now() {
 }
 
 export default function StartFunnel() {
-  const router = useRouter();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [typing, setTyping] = useState(false);
   const [pendingChoice, setPendingChoice] = useState<Step | null>(null);
@@ -152,8 +151,8 @@ export default function StartFunnel() {
 
   const goCheckout = (method?: 'pix') => {
     const goal = answersRef.current.goal || '';
-    const base = `/checkout?utm_source=lp-start&goal=${encodeURIComponent(goal.replace(/[^\wÀ-ÿ ]/g, '').trim())}`;
-    router.push(method ? `${base}&method=${method}` : base);
+    const base = `${MAIN_SITE_URL}/checkout?utm_source=lp-start&goal=${encodeURIComponent(goal.replace(/[^\wÀ-ÿ ]/g, '').trim())}`;
+    window.location.href = method ? `${base}&method=${method}` : base;
   };
 
   return (
