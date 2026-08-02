@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { stripe, PLANS } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { notifyEmail } from '@/lib/notify-email';
 
@@ -79,7 +79,8 @@ export async function POST(req) {
       event: 'subscription_canceled',
       email,
       name,
-      valid_until: subscription.valid_until || null,
+      plan: PLANS[subscription.plan]?.label || subscription.plan,
+      validUntil: subscription.valid_until || null,
     });
 
     return withCors(NextResponse.json({

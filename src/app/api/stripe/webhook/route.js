@@ -16,6 +16,19 @@ async function findUserId(customerId, subscriptionMetaUserId) {
   return data?.id || null;
 }
 
+// Cartao usado na cobranca (pra mostrar "VISA •••• 4242" no recibo) -- best
+// effort, nunca deve quebrar o webhook se a Stripe nao retornar o charge.
+async function getCardDetails(chargeId) {
+  if (!chargeId) return {};
+  try {
+    const charge = await stripe.charges.retrieve(chargeId);
+    const card = charge.payment_method_details?.card;
+    return card ? { cardBrand: card.brand, cardLast4: card.last4 } : {};
+  } catch {
+    return {};
+  }
+}
+
 export async function POST(req) {
   const sig = req.headers.get('stripe-signature');
   const rawBody = await req.text();
@@ -67,7 +80,9 @@ export async function POST(req) {
 
         const isFirstInvoice = invoice.billing_reason === 'subscription_create';
         const amount = (invoice.amount_paid || 0) / 100;
-        const validUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        const purchaseDate = new Date();
+        const validUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        const { cardBrand, cardLast4 } = await getCardDetails(invoice.charge);
 
         await supabaseAdmin
           .from('subscriptions')
@@ -106,6 +121,10 @@ export async function POST(req) {
           amount,
           plan: PLANS[plan]?.label || plan,
           includesViora: PLANS[plan]?.includesViora || false,
+          cardBrand,
+          cardLast4,
+          purchaseDate,
+          nextBillingDate: validUntil,
         });
         break;
       }
@@ -128,6 +147,7 @@ export async function POST(req) {
             .select('email, full_name')
             .eq('id', sub.user_id)
             .maybeSingle();
+          const { cardBrand, cardLast4 } = await getCardDetails(invoice.charge);
 
           await notifyEmail({
             event: 'payment_failed',
@@ -135,6 +155,9 @@ export async function POST(req) {
             name: profile?.full_name || null,
             amount: (invoice.amount_due || 0) / 100,
             plan: PLANS[sub.plan]?.label || sub.plan,
+            cardBrand,
+            cardLast4,
+            purchaseDate: new Date(),
           });
         }
         break;
