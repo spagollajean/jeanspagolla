@@ -300,7 +300,7 @@ export async function main(
 
   if (!isActive) {
       await supabase.from("whatsapp_sessions").update({ state: "IDLE" }).eq("phone_number", sender_number);
-      await sendWhatsAppMessage("🚨 *Assinatura Inativa!*\n\nPara eu criar sua dieta e treino, você precisa estar com sua assinatura ativa.\n\n👉 Acesse o seu painel e ative seu plano por apenas R$ 5,00 no primeiro mês:\nhttps://app.jeanspagolla.com.br/dashboard");
+      await sendWhatsAppMessage("🚨 *Assinatura Inativa!*\n\nPara eu criar sua dieta e treino, você precisa estar no plano Renascer Completo (já inclui o Viora).\n\n👉 Assine aqui:\nhttps://www.jeanspagolla.com.br/checkout?plan=completo");
       return { success: false, error: "Subscription inactive" };
   }
 

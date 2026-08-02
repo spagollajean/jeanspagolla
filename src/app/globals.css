@@ -1083,6 +1083,24 @@ section { position: relative; }
 
 .checkout-logo { font-family: var(--font-serif); font-weight: 600; font-size: 1.2rem; color: var(--bone); display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.6rem; }
 
+.checkout-plan-toggle { display: flex; gap: 0.5rem; background: var(--dark-2); border: 1px solid var(--line-dark); border-radius: var(--radius); padding: 0.3rem; }
+.checkout-plan-toggle__btn {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.55rem 0.6rem;
+  border-radius: calc(var(--radius) - 2px);
+  border: none;
+  background: transparent;
+  color: var(--bone-faint);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.checkout-plan-toggle__btn.active { background: var(--viora-emerald); color: #fff; }
+.checkout-plan-toggle__btn:disabled { cursor: not-allowed; opacity: 0.7; }
+
 .checkout-price-row { display: flex; align-items: baseline; justify-content: space-between; background: var(--dark-2); border: 1px solid var(--line-dark); border-radius: var(--radius); padding: 1rem 1.2rem; margin-top: 1.6rem; }
 .checkout-price-row .label { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--bone-faint); }
 .checkout-price-row .value { font-family: var(--font-serif); font-size: 1.4rem; color: var(--bone); }

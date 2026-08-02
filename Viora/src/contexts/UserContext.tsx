@@ -40,10 +40,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
             // Mesma regra de subscription/status/route.ts: 'active' E ainda
             // dentro do período pago. Sem o check de valid_until, quem
-            // cancelava ou deixava expirar continuava marcado como 'pro' aqui
-            // (a EFI não flipa o status sozinha como o Stripe fazia).
+            // cancelava ou deixava expirar continuava marcado como 'pro' aqui.
+            // Só o plano "Renascer Completo" inclui o Viora -- quem assinou
+            // o Essencial (sem Viora) fica marcado como 'free' aqui mesmo com
+            // assinatura ativa.
             const isActive = !!entitlement &&
                 entitlement.status === 'active' &&
+                entitlement.plan === 'completo' &&
                 (!entitlement.valid_until || new Date(entitlement.valid_until) > new Date());
             const plan: 'free' | 'pro' = isActive ? 'pro' : 'free';
 

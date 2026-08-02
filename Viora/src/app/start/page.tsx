@@ -58,7 +58,7 @@ const STEPS: Step[] = [
   { type: 'image', src: '/lp/card-avaliacao.png', alt: 'Avaliação física do Viora: gordura, massa muscular, biótipo e evolução' },
   { type: 'bot', text: 'E junto vem seu *plano completo de treino e dieta em PDF*, feito pro seu corpo e seu objetivo. A cada nova foto, eu comparo e te mostro sua evolução. 📈' },
   { type: 'bot', text: 'Uma nutricionista + um personal custam *R$ 400+ por mês*.' },
-  { type: 'bot', text: 'O Viora custa *R$ 5 no primeiro mês* (depois R$ 14,99/mês — cancela quando quiser, sem fidelidade).' },
+  { type: 'bot', text: 'O Viora vem incluso no plano *Renascer Completo*, por *R$ 79,90/mês* — cancela quando quiser, sem fidelidade.' },
   { type: 'bot', text: 'Bora? Leva 2 minutos pra ativar: 👇' },
   { type: 'cta' },
 ];
@@ -149,10 +149,9 @@ export default function StartFunnel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const goCheckout = (method?: 'pix') => {
+  const goCheckout = () => {
     const goal = answersRef.current.goal || '';
-    const base = `${MAIN_SITE_URL}/checkout?utm_source=lp-start&goal=${encodeURIComponent(goal.replace(/[^\wÀ-ÿ ]/g, '').trim())}`;
-    window.location.href = method ? `${base}&method=${method}` : base;
+    window.location.href = `${MAIN_SITE_URL}/checkout?plan=completo&utm_source=lp-start&goal=${encodeURIComponent(goal.replace(/[^\wÀ-ÿ ]/g, '').trim())}`;
   };
 
   return (
@@ -180,15 +179,9 @@ export default function StartFunnel() {
                   onClick={() => goCheckout()}
                   className="w-full bg-[#25d366] hover:bg-[#1fb958] active:scale-[0.99] transition-all text-white font-bold text-lg py-4 rounded-2xl shadow-lg shadow-green-600/30"
                 >
-                  🚀 Começar por R$ 5
+                  🚀 Quero o Renascer Completo
                 </button>
-                <p className="text-center text-xs text-gray-500">Cancela quando quiser · Pagamento seguro via Efí</p>
-                <button
-                  onClick={() => goCheckout('pix')}
-                  className="w-full bg-white/80 hover:bg-white transition-colors text-[#075e54] font-semibold text-sm py-3 rounded-2xl border border-[#075e54]/20"
-                >
-                  Ver pacotes Pix com desconto (até -27%)
-                </button>
+                <p className="text-center text-xs text-gray-500">Cancela quando quiser · Pagamento seguro via Stripe</p>
               </div>
             );
           }

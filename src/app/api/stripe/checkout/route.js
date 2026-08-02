@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { stripe, STRIPE_PRICE_ID_MONTHLY, STRIPE_COUPON_FIRST_MONTH } from '@/lib/stripe';
+import { stripe, PLANS } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export const runtime = 'nodejs';
@@ -12,6 +12,12 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
     const token = authHeader.replace('Bearer ', '').trim();
+
+    const { plan } = await req.json().catch(() => ({}));
+    const planConfig = PLANS[plan];
+    if (!planConfig) {
+      return NextResponse.json({ error: 'Plano inválido' }, { status: 400 });
+    }
 
     const {
       data: { user },
@@ -39,15 +45,6 @@ export async function POST(req) {
       .eq('id', user.id)
       .single();
 
-    // Cupom de boas-vindas (R$5 no 1o mes) so vale pra quem nunca pagou.
-    const { data: pastPayment } = await supabaseAdmin
-      .from('payments')
-      .select('id')
-      .eq('user_id', user.id)
-      .limit(1)
-      .maybeSingle();
-    const isFirstTime = !pastPayment;
-
     // Reusa o Customer do Stripe se ja existir (evita duplicar ao tentar
     // de novo apos um checkout abandonado).
     let customerId = profile?.stripe_customer_id;
@@ -61,19 +58,16 @@ export async function POST(req) {
       await supabaseAdmin.from('profiles').update({ stripe_customer_id: customerId }).eq('id', user.id);
     }
 
-    const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_APP_URL || '';
-
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       redirect_on_completion: 'never',
       mode: 'subscription',
       customer: customerId,
-      line_items: [{ price: STRIPE_PRICE_ID_MONTHLY, quantity: 1 }],
-      ...(isFirstTime ? { discounts: [{ coupon: STRIPE_COUPON_FIRST_MONTH }] } : {}),
+      line_items: [{ price: planConfig.priceId, quantity: 1 }],
       subscription_data: {
-        metadata: { supabase_user_id: user.id },
+        metadata: { supabase_user_id: user.id, plan },
       },
-      metadata: { supabase_user_id: user.id },
+      metadata: { supabase_user_id: user.id, plan },
       locale: 'pt-BR',
     });
 

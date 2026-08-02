@@ -18,7 +18,7 @@ export async function main(
 
   const GRAPH_API_URL = "https://graph.facebook.com/v19.0";
 
-  const text = "🚨 *Assinatura Inativa!*\n\nPara eu analisar seus pratos e seu corpo, você precisa estar com sua assinatura ativa.\n\n👉 Acesse o seu painel e ative seu plano por apenas R$ 5,00 no primeiro mês:\nhttps://app.jeanspagolla.com.br/dashboard";
+  const text = "🚨 *Assinatura Inativa!*\n\nPara eu analisar seus pratos e seu corpo, você precisa estar no plano Renascer Completo (já inclui o Viora).\n\n👉 Assine aqui:\nhttps://www.jeanspagolla.com.br/checkout?plan=completo";
   
   const res = await fetch(`${GRAPH_API_URL}/${META_PHONE_NUMBER_ID}/messages`, {
       method: "POST",

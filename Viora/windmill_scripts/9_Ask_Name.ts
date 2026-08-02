@@ -30,7 +30,7 @@ export async function main(
       .eq("phone_number", sender_number);
 
   // 2. Avisar que precisa criar a conta no site
-  const text = "👋 Olá! Vi que você ainda não tem uma conta no Viora.\n\nPara eu começar a analisar seus pratos e seu corpo com a nossa IA, você precisa criar sua conta no nosso site e ativar seu plano por apenas *R$ 5,00 no primeiro mês*!\n\n👉 Acesse agora: https://app.jeanspagolla.com.br\n\n*(Depois de criar a conta, é só voltar aqui e me mandar um Oi!)*";
+  const text = "👋 Olá! Vi que você ainda não tem uma conta no Viora.\n\nPara eu começar a analisar seus pratos e seu corpo com a nossa IA, você precisa assinar o plano Renascer Completo (que já inclui o Viora).\n\n👉 Acesse agora: https://www.jeanspagolla.com.br/checkout?plan=completo\n\n*(Depois de assinar, é só voltar aqui e me mandar um Oi!)*";
   
   await fetch(`${GRAPH_API_URL}/${META_PHONE_NUMBER_ID}/messages`, {
       method: "POST",

@@ -3,18 +3,6 @@ import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 type Language = 'pt' | 'en' | 'es';
 
-interface PlanDetails {
-  title: string;
-  price: string;
-  period: string;
-  billingInfo: string;
-  description: string;
-  btnText: string;
-  features: string[];
-  highlight?: string;
-  savings?: string;
-}
-
 interface FaqItem {
   q: string;
   a: string;
@@ -29,7 +17,6 @@ interface Translations {
   header: {
     howItWorks: string;
     features: string;
-    pricing: string;
     login: string;
     cta: string;
     slogan: string;
@@ -89,16 +76,6 @@ interface Translations {
     r2Role: string;
     r3Content: string;
     r3Role: string;
-  };
-  pricing: {
-    title: string;
-    subtitle: string;
-    secure: string;
-    plans: {
-      monthly: PlanDetails;
-      quarterly: PlanDetails;
-      annual: PlanDetails;
-    }
   };
   faq: {
     title: string;
@@ -301,7 +278,6 @@ const dictionary: Record<Language, Translations> = {
     header: {
       howItWorks: 'Como Funciona',
       features: 'Vantagens',
-      pricing: 'Planos',
       login: 'Área do Membro',
       cta: 'Começar Transformação',
       slogan: 'Seu Nutricionista de Bolso',
@@ -361,57 +337,6 @@ const dictionary: Record<Language, Translations> = {
       r2Role: 'Nutricionista Funcional',
       r3Content: 'A precisão é impressionante. Ele identificou até o azeite na salada. Vale cada centavo pela praticidade.',
       r3Role: 'Personal Trainer'
-    },
-    pricing: {
-      title: 'Invista na sua Saúde',
-      subtitle: 'Menos que um café por dia para ter um nutricionista IA no seu bolso.',
-      secure: 'Compra segura. Satisfação garantida ou seu dinheiro de volta em 7 dias.',
-      plans: {
-        monthly: {
-          title: 'Plano Único PRO',
-          price: 'R$ 5,00',
-          period: '/primeiro mês',
-          billingInfo: 'Depois R$ 14,99/mês. Cancele quando quiser.',
-          description: 'Teste o plano completo Viora PRO no primeiro mês por apenas R$ 5,00.',
-          btnText: 'Assinar Agora',
-          features: [
-            'Fotos Ilimitadas',
-            'Feedback Imediato',
-            'Chat Nutricional 24h',
-            'Histórico Completo'
-          ]
-        },
-        quarterly: {
-          title: 'Trimestral',
-          price: 'R$ 39,90',
-          period: '/mês',
-          billingInfo: 'Cobrado a cada 3 meses',
-          description: 'O empurrão que faltava.',
-          btnText: 'Garantir Desconto',
-          features: [
-            'Tudo do Mensal',
-            'Economia de 20%',
-            'Prioridade no Suporte',
-            'Acesso a Novas Features'
-          ]
-        },
-        annual: {
-          title: 'Anual',
-          price: 'R$ 29,90',
-          period: '/mês',
-          billingInfo: 'Faturamento anual',
-          description: 'Para transformar o estilo de vida.',
-          btnText: 'Quero o Melhor Preço',
-          highlight: 'Mais Vendido',
-          savings: 'Economize 40%',
-          features: [
-            'Tudo do Trimestral',
-            'Relatório Mensal em PDF',
-            'Suporte VIP',
-            'Menor valor mensal'
-          ]
-        }
-      }
     },
     faq: {
       title: 'Dúvidas Comuns',
@@ -648,7 +573,6 @@ const dictionary: Record<Language, Translations> = {
     header: {
       howItWorks: 'How it Works',
       features: 'Features',
-      pricing: 'Pricing',
       login: 'Login',
       cta: 'Start for Free',
       slogan: 'Intelligence on your plate',
@@ -708,57 +632,6 @@ const dictionary: Record<Language, Translations> = {
       r2Role: 'Sports Nutritionist',
       r3Content: 'Clean interface, fast, and frictionless. Exactly what I needed to stay in shape without stress.',
       r3Role: 'Software Engineer'
-    },
-    pricing: {
-      title: 'Pro Plans',
-      subtitle: 'Choose the flexibility your lifestyle demands.',
-      secure: 'Secure payment via Efí. Cancel anytime.',
-      plans: {
-        monthly: {
-          title: 'PRO Subscription',
-          price: '$4.99',
-          period: '/first month',
-          billingInfo: 'Then $14.99/mo. Cancel anytime.',
-          description: 'Try the full Viora PRO plan for just $4.99 in your first month.',
-          btnText: 'Subscribe Now',
-          features: [
-            'Unlimited Queries',
-            'AI Nutritionist Chat',
-            'Unlimited History',
-            'Micronutrient Analysis'
-          ]
-        },
-        quarterly: {
-          title: 'Quarterly',
-          price: '$7.99',
-          period: '/mo',
-          billingInfo: 'Billed every 3 months',
-          description: 'Medium term commitment.',
-          btnText: 'Choose Quarterly',
-          features: [
-            'All Monthly features',
-            'Priority Support',
-            'Save 20%',
-            'Access to Beta features'
-          ]
-        },
-        annual: {
-          title: 'Annual',
-          price: '$5.99',
-          period: '/mo',
-          billingInfo: 'Billed annually',
-          description: 'Best for real results.',
-          btnText: 'Go Annual',
-          highlight: 'Best Value',
-          savings: 'Save 40%',
-          features: [
-            'All Quarterly features',
-            'Evolution Reports',
-            'VIP Support',
-            'Price locked for 1 year'
-          ]
-        }
-      }
     },
     faq: {
       title: 'Frequently Asked Questions',
@@ -995,7 +868,6 @@ const dictionary: Record<Language, Translations> = {
     header: {
       howItWorks: 'Cómo Funciona',
       features: 'Funciones',
-      pricing: 'Precios',
       login: 'Entrar',
       cta: 'Empezar Gratis',
       slogan: 'Inteligencia en tu plato',
@@ -1055,57 +927,6 @@ const dictionary: Record<Language, Translations> = {
       r2Role: 'Nutricionista Deportiva',
       r3Content: 'Interfaz limpia, rápida y sin fricción. Exactamente lo que necesitaba.',
       r3Role: 'Ingeniero de Software'
-    },
-    pricing: {
-      title: 'Planes Pro',
-      subtitle: 'Elige la flexibilidad que tu estilo de vida exige.',
-      secure: 'Pago seguro vía Efí. Cancela cuando quieras.',
-      plans: {
-        monthly: {
-          title: 'Plan Único PRO',
-          price: '€ 4,99',
-          period: '/primer mes',
-          billingInfo: 'Luego € 14,99/mes. Cancela cuando quieras.',
-          description: 'Prueba el plan completo Viora PRO el primer mes por solo € 4,99.',
-          btnText: 'Suscribir Ahora',
-          features: [
-            'Consultas Ilimitadas',
-            'Chat con Nutricionista IA',
-            'Historial Ilimitado',
-            'Análisis de Micronutrientes'
-          ]
-        },
-        quarterly: {
-          title: 'Trimestral',
-          price: '€ 11,90',
-          period: '/mes',
-          billingInfo: 'Cobrado cada 3 meses',
-          description: 'Compromiso a medio plazo.',
-          btnText: 'Elegir Trimestral',
-          features: [
-            'Todo lo del Mensual',
-            'Soporte Prioritario',
-            'Ahorra 20%',
-            'Acceso a funciones Beta'
-          ]
-        },
-        annual: {
-          title: 'Anual',
-          price: '€ 9,90',
-          period: '/mes',
-          billingInfo: 'Cobrado anualmente',
-          description: 'El favorito para resultados.',
-          btnText: 'Suscribir Anual',
-          highlight: 'Mejor Valor',
-          savings: 'Ahorra 40%',
-          features: [
-            'Todo lo del Trimestral',
-            'Reportes de Evolución',
-            'Soporte VIP',
-            'Precio congelado por 1 año'
-          ]
-        }
-      }
     },
     faq: {
       title: 'Preguntas Frecuentes',

@@ -7,19 +7,39 @@ import { fbq, trackPurchase } from '@/lib/fbpixel';
 import { gtag, gaPurchase } from '@/lib/ga';
 import StripeCheckout from '@/components/StripeCheckout';
 import {
-  Zap, ShieldCheck, Lock, Loader2, CheckCircle2, ArrowRight,
+  ShieldCheck, Lock, Loader2, CheckCircle2, ArrowRight,
   Mail, Eye, EyeOff, MessageCircle, LogOut, User as UserIcon,
 } from 'lucide-react';
 
 const VIORA_APP_URL = process.env.NEXT_PUBLIC_VIORA_APP_URL || 'https://app.jeanspagolla.com.br';
 
-const FEATURES = [
-  'Análises de refeição ILIMITADAS via WhatsApp',
-  'Coach pessoal com IA',
-  'Avaliações físicas ILIMITADAS',
-  'Plano de treino e dieta personalizado',
-  'Histórico completo e gráficos de evolução',
-];
+const PLAN_INFO = {
+  essencial: {
+    key: 'essencial',
+    label: 'Renascer Essencial',
+    priceLabel: 'R$ 59,90',
+    includesViora: false,
+    tagline: 'Menos que uma única sessão avulsa de personal trainer.',
+    features: [
+      'Aulas em vídeo com todos os protocolos',
+      'Comunidade no Skool com acesso a mim',
+      'Desafios, palestras e aulas ao vivo',
+    ],
+  },
+  completo: {
+    key: 'completo',
+    label: 'Renascer Completo',
+    priceLabel: 'R$ 79,90',
+    includesViora: true,
+    tagline: 'Cobrança diária comigo e com o Viora, direto no seu WhatsApp.',
+    features: [
+      'Tudo do Renascer Essencial',
+      'APP Viora AI direto no WhatsApp',
+      'Leitura de pratos por foto e calculadora metabólica Viora',
+      'Menor chance de se perder no caminho',
+    ],
+  },
+};
 
 function formatPhone(v) {
   return v.replace(/[^\d+ ]/g, '');
@@ -48,7 +68,8 @@ export default function CheckoutPage() {
   const [authLoading, setAuthLoading] = useState(true);
   const [user, setUser] = useState(null);
 
-  const [step, setStep] = useState('account');
+  const [selectedPlan, setSelectedPlan] = useState('completo');
+  const [step, setStep] = useState('account'); // account | payment | already-subscribed | success
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -56,6 +77,14 @@ export default function CheckoutPage() {
   const [sessionToken, setSessionToken] = useState(null);
 
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' });
+
+  const plan = PLAN_INFO[selectedPlan];
+
+  // Lê o plano da URL (?plan=essencial|completo), vindo dos CTAs da landing.
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get('plan');
+    if (p === 'essencial' || p === 'completo') setSelectedPlan(p);
+  }, []);
 
   const fetchProfile = useCallback(async (userId, email) => {
     const { data: profile } = await supabase
@@ -75,7 +104,7 @@ export default function CheckoutPage() {
       name: profile?.full_name || 'Usuário',
       email: email || profile?.email || '',
       phone: profile?.phone || '',
-      plan: isActive ? 'pro' : 'free',
+      plan: isActive ? entitlement.plan : null,
     };
     setUser(userData);
     return userData;
@@ -87,15 +116,20 @@ export default function CheckoutPage() {
     gtag('event', 'begin_checkout', { currency: 'BRL' });
   }, []);
 
-  // Sessão inicial: se já logado e PRO, manda pro app; senão pula pro passo de pagamento.
+  // Sessão inicial: se já é assinante, não deixa comprar de novo.
   useEffect(() => {
     let mounted = true;
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!mounted) return;
       if (session?.user) {
         const userData = await fetchProfile(session.user.id, session.user.email);
-        if (userData.plan === 'pro') {
+        if (userData.plan === 'completo') {
           window.location.href = `${VIORA_APP_URL}/dashboard`;
+          return;
+        }
+        if (userData.plan === 'essencial') {
+          setStep('already-subscribed');
+          if (mounted) setAuthLoading(false);
           return;
         }
         setStep('payment');
@@ -239,8 +273,12 @@ export default function CheckoutPage() {
       if (!data.user || !data.session) throw new Error('Erro ao fazer login. Tente novamente.');
 
       const userData = await fetchProfile(data.user.id, data.user.email);
-      if (userData.plan === 'pro') {
+      if (userData.plan === 'completo') {
         window.location.href = `${VIORA_APP_URL}/dashboard`;
+        return;
+      }
+      if (userData.plan === 'essencial') {
+        setStep('already-subscribed');
         return;
       }
       setSessionToken(data.session.access_token);
@@ -292,19 +330,29 @@ export default function CheckoutPage() {
         {/* ── LEFT: Plan Summary ───────────────────────────────────────── */}
         <div className="checkout-summary">
           <div>
-            <div className="checkout-logo">
-              <span style={{ color: 'var(--viora-emerald)' }}>Viora</span> PRO
-            </div>
+            <div className="checkout-logo">Renascer</div>
 
-            <span className="tag-pill tag-pill--viora"><span className="dot"></span>1º Mês por R$ 5,00</span>
+            {step !== 'already-subscribed' && step !== 'success' && (
+              <div className="checkout-plan-toggle">
+                {Object.values(PLAN_INFO).map((p) => (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => setSelectedPlan(p.key)}
+                    disabled={step === 'payment'}
+                    className={`checkout-plan-toggle__btn ${selectedPlan === p.key ? 'active' : ''}`}
+                  >
+                    {p.key === 'completo' ? 'Completo + Viora' : 'Essencial'}
+                  </button>
+                ))}
+              </div>
+            )}
 
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.7rem', color: 'var(--bone)', marginTop: '1rem' }}>Plano PRO</h1>
-            <p style={{ color: 'var(--bone-soft)', fontSize: '0.92rem', marginTop: '0.4rem' }}>
-              A partir do 2º mês, apenas <strong style={{ color: 'var(--bone)' }}>R$ 14,99/mês</strong>. Cancele quando quiser.
-            </p>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.7rem', color: 'var(--bone)', marginTop: '1rem' }}>{plan.label}</h1>
+            <p style={{ color: 'var(--bone-soft)', fontSize: '0.92rem', marginTop: '0.4rem' }}>{plan.tagline}</p>
 
             <ul className="checkout-features">
-              {FEATURES.map((f) => (
+              {plan.features.map((f) => (
                 <li key={f}>
                   <CheckCircle2 />
                   {f}
@@ -314,12 +362,8 @@ export default function CheckoutPage() {
 
             <div className="checkout-price-row">
               <div>
-                <div className="label">A partir do 2º mês</div>
-                <div className="value">R$ 14,99<small style={{ fontSize: '0.7rem', color: 'var(--bone-faint)' }}>/mês</small></div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div className="label">Hoje</div>
-                <div className="value value--accent">R$ 5,00</div>
+                <div className="label">Cobrança mensal</div>
+                <div className="value value--accent">{plan.priceLabel}<small style={{ fontSize: '0.7rem', color: 'var(--bone-faint)' }}>/mês</small></div>
               </div>
             </div>
           </div>
@@ -335,7 +379,31 @@ export default function CheckoutPage() {
         <div className="checkout-form-col">
           {error && <div className="checkout-error">{error}</div>}
 
-          {step === 'account' ? (
+          {step === 'already-subscribed' ? (
+            <div style={{ textAlign: 'center' }}>
+              <CheckCircle2 size={40} style={{ color: 'var(--viora-emerald)', margin: '0 auto 1rem' }} />
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', color: 'var(--bone)' }}>Você já é aluno do Renascer Essencial</h2>
+              <p style={{ color: 'var(--bone-soft)', fontSize: '0.9rem', marginTop: '0.6rem' }}>
+                Sua assinatura está ativa. Quer destravar o Viola AI no WhatsApp com o plano Completo?
+              </p>
+              <button
+                type="button"
+                onClick={() => { setSelectedPlan('completo'); setStep('account'); }}
+                className="btn btn--viora btn--block"
+                style={{ marginTop: '1.4rem' }}
+              >
+                Fazer upgrade para o Completo <ArrowRight size={16} />
+              </button>
+            </div>
+          ) : step === 'success' ? (
+            <div style={{ textAlign: 'center' }}>
+              <CheckCircle2 size={40} style={{ color: 'var(--viora-emerald)', margin: '0 auto 1rem' }} />
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', color: 'var(--bone)' }}>Pagamento confirmado!</h2>
+              <p style={{ color: 'var(--bone-soft)', fontSize: '0.9rem', marginTop: '0.6rem' }}>
+                Sua assinatura do {plan.label} está ativa. Em breve você recebe por e-mail os próximos passos (acesso às aulas e à comunidade).
+              </p>
+            </div>
+          ) : step === 'account' ? (
             <form onSubmit={handleFormSubmit}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', color: 'var(--bone)' }}>
@@ -437,16 +505,21 @@ export default function CheckoutPage() {
 
               {sessionToken ? (
                 <StripeCheckout
-                  key={sessionToken}
+                  key={`${sessionToken}-${selectedPlan}`}
                   sessionToken={sessionToken}
+                  plan={selectedPlan}
                   onComplete={async () => {
-                    trackPurchase(5, { content_name: 'assinatura-cartao' });
-                    gaPurchase(5, 'assinatura-cartao');
-                    // A ativacao real (subscriptions.status) vem do webhook do
-                    // Stripe, que roda em paralelo -- espera um instante antes
-                    // de mandar pro dashboard do app.
-                    await new Promise((r) => setTimeout(r, 2500));
-                    window.location.href = `${VIORA_APP_URL}/dashboard`;
+                    trackPurchase(plan.key === 'essencial' ? 59.90 : 79.90, { content_name: plan.label });
+                    gaPurchase(plan.key === 'essencial' ? 59.90 : 79.90, plan.label);
+                    if (plan.includesViora) {
+                      // A ativacao real (subscriptions.status) vem do webhook do
+                      // Stripe, que roda em paralelo -- espera um instante antes
+                      // de mandar pro dashboard do app.
+                      await new Promise((r) => setTimeout(r, 2500));
+                      window.location.href = `${VIORA_APP_URL}/dashboard`;
+                    } else {
+                      setStep('success');
+                    }
                   }}
                 />
               ) : (

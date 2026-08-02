@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { stripe, PLANS, planFromPriceId } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { notifyEmail } from '@/lib/notify-email';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-const RECURRING_PRICE = 14.99;
-const FIRST_MONTH_PRICE = 5.0;
 
 async function findUserId(customerId, subscriptionMetaUserId) {
   if (subscriptionMetaUserId) return subscriptionMetaUserId;
@@ -35,7 +32,7 @@ export async function POST(req) {
     switch (event.type) {
       // Cobrança paga (1o mes ou renovacao mensal) -- fonte unica de verdade
       // pra ativar/renovar acesso. billing_reason diferencia 1a cobranca de
-      // renovacao (so pra saber que valor mandar no e-mail).
+      // renovacao (so pra saber que texto mandar no e-mail).
       case 'invoice.paid': {
         const invoice = event.data.object;
         const subscriptionId = invoice.subscription || null;
@@ -49,13 +46,22 @@ export async function POST(req) {
         if (existingPayment) break;
 
         let subMetaUserId = null;
+        // O priceId da assinatura decide qual dos 2 planos (Essencial/Completo)
+        // o usuario comprou -- e o que abre ou nao o acesso ao Viora.
+        let plan = null;
         if (subscriptionId) {
           const sub = await stripe.subscriptions.retrieve(subscriptionId);
           subMetaUserId = sub.metadata?.supabase_user_id || null;
+          const priceId = sub.items?.data?.[0]?.price?.id;
+          plan = planFromPriceId(priceId) || sub.metadata?.plan || null;
         }
         const userId = await findUserId(customerId, subMetaUserId);
         if (!userId) {
           console.error('Stripe webhook: invoice paga sem usuario correspondente', invoice.id);
+          break;
+        }
+        if (!plan) {
+          console.error('Stripe webhook: nao foi possivel identificar o plano da invoice', invoice.id);
           break;
         }
 
@@ -71,7 +77,7 @@ export async function POST(req) {
               stripe_subscription_id: subscriptionId,
               stripe_customer_id: customerId,
               status: 'active',
-              plan: 'pro',
+              plan,
               valid_until: validUntil,
               cancel_at_period_end: false,
             },
@@ -83,7 +89,7 @@ export async function POST(req) {
           stripe_invoice_id: invoice.id,
           amount,
           status: 'completed',
-          plan_type: 'monthly',
+          plan_type: plan,
           payment_method: 'credit_card',
         });
 
@@ -97,8 +103,9 @@ export async function POST(req) {
           event: isFirstInvoice ? 'purchase_approved' : 'payment_receipt',
           email: profile?.email || null,
           name: profile?.full_name || null,
-          amount: isFirstInvoice ? FIRST_MONTH_PRICE : RECURRING_PRICE,
-          plan: 'PRO',
+          amount,
+          plan: PLANS[plan]?.label || plan,
+          includesViora: PLANS[plan]?.includesViora || false,
         });
         break;
       }
@@ -111,7 +118,7 @@ export async function POST(req) {
 
         const { data: sub } = await supabaseAdmin
           .from('subscriptions')
-          .select('user_id, cancel_at_period_end')
+          .select('user_id, plan, cancel_at_period_end')
           .eq('stripe_customer_id', customerId)
           .maybeSingle();
 
@@ -126,7 +133,8 @@ export async function POST(req) {
             event: 'payment_failed',
             email: profile?.email || null,
             name: profile?.full_name || null,
-            amount: RECURRING_PRICE,
+            amount: (invoice.amount_due || 0) / 100,
+            plan: PLANS[sub.plan]?.label || sub.plan,
           });
         }
         break;

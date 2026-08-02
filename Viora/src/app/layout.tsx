@@ -24,7 +24,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: 'Viora - Nutricionista e Personal Trainer com IA no WhatsApp',
-  description: 'Fotografe seu prato pelo WhatsApp e receba na hora as calorias e macros do seu dia. Tem também o Coach IA: envie fotos do seu corpo e receba treino, dieta e acompanhamento de evolução personalizados. Por R$5 no primeiro mês, depois R$14,99/mês.',
+  description: 'Fotografe seu prato pelo WhatsApp e receba na hora as calorias e macros do seu dia. Tem também o Coach IA: envie fotos do seu corpo e receba treino, dieta e acompanhamento de evolução personalizados. Incluso no plano Renascer Completo.',
   keywords: ['nutrição ia', 'contador de calorias foto', 'dieta whatsapp', 'nutricionista artificial', 'emagrecimento ia', 'food tracker', 'macro calculator', 'personal trainer ia', 'treino com ia', 'coach fitness whatsapp'],
   authors: [{ name: 'Viora AI' }],
   robots: 'index, follow',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     url: 'https://app.jeanspagolla.com.br/',
     siteName: 'Viora',
     title: 'Viora - Nutricionista e Personal Trainer com IA no WhatsApp',
-    description: 'Conte calorias e macros tirando uma foto do prato. Receba treino, dieta e acompanhamento de evolução física com o Coach IA. Tudo pelo WhatsApp, a partir de R$5 no primeiro mês.',
+    description: 'Conte calorias e macros tirando uma foto do prato. Receba treino, dieta e acompanhamento de evolução física com o Coach IA. Tudo pelo WhatsApp, incluso no plano Renascer Completo.',
     images: [
       {
         url: 'https://app.jeanspagolla.com.br/og-image.jpg',
@@ -88,9 +88,10 @@ export default function RootLayout({
               description: 'Viora é um nutricionista e personal trainer com inteligência artificial que funciona pelo WhatsApp. O usuário fotografa o prato e recebe na hora as calorias e macronutrientes. No Coach IA, o usuário envia fotos do próprio corpo e recebe um protocolo completo de treino e dieta personalizados, além de acompanhamento da evolução física ao longo do tempo com gráficos e comparativos antes/depois.',
               offers: {
                 '@type': 'Offer',
-                price: '14.99',
+                price: '79.90',
                 priceCurrency: 'BRL',
-                description: 'R$5 no primeiro mês, depois R$14,99/mês.',
+                description: 'Incluso no plano Renascer Completo.',
+                url: 'https://www.jeanspagolla.com.br/checkout?plan=completo',
               },
               featureList: [
                 'Análise de calorias e macros por foto do prato via WhatsApp',

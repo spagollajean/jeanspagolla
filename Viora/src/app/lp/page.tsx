@@ -9,8 +9,8 @@
  * Copy continua "direto ao ponto e sem lorota": nada de depoimento inventado
  * nem contador fake.
  *
- * Oferta de lançamento (Marcio, 16/07): R$ 5 no 1º mês, R$ 14,99/mês travado
- * por 1 ano pra quem assinar agora; depois do lançamento vai a R$ 29,90/mês.
+ * O Viora vem incluso no plano Renascer Completo (R$79,90/mês) -- vendido
+ * no checkout do site principal, nao aqui.
  */
 
 import React, { useEffect } from 'react';
@@ -24,7 +24,7 @@ import {
   Sparkles, ChevronRight,
 } from 'lucide-react';
 
-const CHECKOUT = `${MAIN_SITE_URL}/checkout?utm_source=lp-classic`;
+const CHECKOUT = `${MAIN_SITE_URL}/checkout?plan=completo&utm_source=lp-classic`;
 
 // ── Botão CTA principal (verde neon com glow) ────────────────────────────────
 function CtaButton({ onClick, children, big = false }: { onClick: () => void; children: React.ReactNode; big?: boolean }) {
@@ -49,7 +49,7 @@ export default function ClassicLanding() {
     gtag('event', 'view_item', { items: [{ item_name: 'lp-classic' }] });
   }, []);
 
-  const go = (method?: 'pix') => { window.location.href = method ? `${CHECKOUT}&method=pix` : CHECKOUT; };
+  const go = () => { window.location.href = CHECKOUT; };
 
   return (
     <div className="bg-gray-900 text-white font-sans overflow-x-hidden">
@@ -65,7 +65,7 @@ export default function ClassicLanding() {
           onClick={() => go()}
           className="text-sm font-bold text-gray-950 bg-brand-400 hover:bg-brand-300 px-5 py-2 rounded-xl transition-colors"
         >
-          Começar por R$ 5
+          Quero o Completo
         </button>
       </header>
 
@@ -82,7 +82,7 @@ export default function ClassicLanding() {
           <div className="flex-1 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs font-bold uppercase tracking-wider mb-7 shadow-[0_0_25px_rgba(245,158,11,0.15)]">
               <Flame size={13} className="animate-pulse" />
-              Preço de lançamento — depois sobe pra R$ 29,90
+              Renascer Completo — com Viora incluso
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.06] tracking-tight mb-6">
@@ -93,7 +93,7 @@ export default function ClassicLanding() {
               >
                 24h no seu WhatsApp
               </span>{' '}
-              por menos de R$ 0,50/dia
+              por menos de R$ 3/dia
             </h1>
 
             <p className="text-lg text-gray-300 leading-relaxed mb-9 max-w-xl mx-auto lg:mx-0">
@@ -102,9 +102,9 @@ export default function ClassicLanding() {
               Sem digitar nada, sem pesar comida, sem baixar app.
             </p>
 
-            <CtaButton onClick={() => go()}>Começar agora por R$ 5</CtaButton>
+            <CtaButton onClick={() => go()}>Quero o Renascer Completo</CtaButton>
             <p className="mt-4 text-sm text-gray-400">
-              1º mês R$ 5 · depois R$ 14,99/mês · cancela quando quiser
+              R$ 79,90/mês · cancela quando quiser
             </p>
           </div>
 
@@ -143,7 +143,7 @@ export default function ClassicLanding() {
             <span className="flex items-center gap-2"><Zap size={14} className="text-brand-400" /> Resposta em segundos</span>
             <span className="flex items-center gap-2"><MessageCircle size={14} className="text-brand-400" /> Zero app pra instalar</span>
             <span className="flex items-center gap-2"><Check size={14} className="text-brand-400" /> Cancela quando quiser</span>
-            <span className="flex items-center gap-2"><ShieldCheck size={14} className="text-brand-400" /> Pagamento seguro via Efí</span>
+            <span className="flex items-center gap-2"><ShieldCheck size={14} className="text-brand-400" /> Pagamento seguro via Stripe</span>
           </div>
         </div>
       </section>
@@ -407,11 +407,11 @@ export default function ClassicLanding() {
           </div>
           <div className="flex items-center justify-between px-6 py-5 bg-brand-500/10 border-l-2 border-l-brand-400">
             <span className="font-bold text-white">Viora — os dois, 24h no WhatsApp</span>
-            <span className="font-extrabold text-brand-300 text-2xl whitespace-nowrap drop-shadow-[0_0_12px_rgba(16,185,129,0.5)]">R$ 14,99<span className="text-sm font-medium text-brand-400">/mês</span></span>
+            <span className="font-extrabold text-brand-300 text-2xl whitespace-nowrap drop-shadow-[0_0_12px_rgba(16,185,129,0.5)]">R$ 79,90<span className="text-sm font-medium text-brand-400">/mês</span></span>
           </div>
         </div>
         <p className="text-center text-sm text-gray-400 mt-4">
-          Menos de <strong className="text-white">R$ 0,50 por dia</strong> — e no primeiro mês, <strong className="text-brand-300">R$ 5</strong>.
+          Menos de <strong className="text-white">R$ 3 por dia</strong> — incluso no plano Renascer Completo.
         </p>
       </section>
 
@@ -426,17 +426,15 @@ export default function ClassicLanding() {
             <div className="bg-gray-900 rounded-3xl p-8">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-[11px] font-bold uppercase tracking-wider mb-6">
                 <Flame size={12} className="animate-pulse" />
-                Oferta de lançamento
+                Renascer Completo
               </div>
 
               <div className="flex items-baseline gap-2">
-                <span className="text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-emerald-200">R$ 5</span>
-                <span className="text-gray-400 text-sm font-medium">no 1º mês</span>
+                <span className="text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-emerald-200">R$ 79,90</span>
+                <span className="text-gray-400 text-sm font-medium">/mês</span>
               </div>
               <p className="text-gray-300 mt-3 text-sm leading-relaxed">
-                Depois, <strong className="text-white">R$ 14,99/mês travado por 1 ano</strong> pra quem assinar
-                agora. Quem entrar depois do lançamento paga{' '}
-                <span className="line-through text-gray-500">R$ 29,90</span>.
+                Acompanhamento comigo <strong className="text-white">e</strong> o Viora, direto no seu WhatsApp. Cancele quando quiser.
               </p>
 
               <div className="my-7 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
@@ -458,18 +456,11 @@ export default function ClassicLanding() {
                 ))}
               </ul>
 
-              <CtaButton onClick={() => go()} big>Ativar por R$ 5 agora</CtaButton>
-
-              <button
-                onClick={() => go('pix')}
-                className="mt-4 w-full text-center text-brand-300 hover:text-brand-200 text-sm font-semibold underline underline-offset-4 decoration-brand-700 transition-colors"
-              >
-                Prefere Pix? Pacotes de 3 a 12 meses com até 27% off
-              </button>
+              <CtaButton onClick={() => go()} big>Quero o Renascer Completo</CtaButton>
 
               <p className="mt-5 flex items-center justify-center gap-1.5 text-[11px] text-gray-500">
                 <ShieldCheck size={13} className="text-brand-400" />
-                Pagamento seguro via Efí · cancela quando quiser, sem multa
+                Pagamento seguro via Stripe · cancela quando quiser, sem multa
               </p>
             </div>
           </div>
@@ -500,8 +491,8 @@ export default function ClassicLanding() {
                 icon: <Check size={18} />,
               },
               {
-                q: 'O preço sobe pra R$ 29,90 pra mim também?',
-                a: 'Não. Quem assina no lançamento mantém R$ 14,99/mês por 1 ano. O preço novo vale só pra quem entrar depois.',
+                q: 'Como funciona o pagamento?',
+                a: 'Assinatura mensal de R$ 79,90 (plano Renascer Completo), cobrada no cartão via Stripe. Sem contrato de fidelidade.',
                 icon: <FileText size={18} />,
               },
             ].map((f) => (
@@ -521,10 +512,10 @@ export default function ClassicLanding() {
           <div className="text-center mt-14">
             <div className="inline-flex items-center gap-2 text-amber-300 text-sm font-bold mb-5">
               <Sparkles size={15} />
-              R$ 5 hoje. R$ 29,90 pra quem deixar pra depois.
+              Renascer Completo, R$ 79,90/mês.
             </div>
             <div>
-              <CtaButton onClick={() => go()} big>Começar por R$ 5</CtaButton>
+              <CtaButton onClick={() => go()} big>Quero o Renascer Completo</CtaButton>
             </div>
             <p className="mt-4 text-sm text-gray-500">Leva 2 minutos. O coach te espera no WhatsApp. 💪</p>
           </div>

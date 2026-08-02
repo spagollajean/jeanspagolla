@@ -37,7 +37,7 @@ export default function PricingPlans() {
               </li>
             </ul>
 
-            <a href="#" className="btn btn--outline btn--block" style={{ marginTop: '1.6rem' }}>Quero o Essencial</a>
+            <a href="/checkout?plan=essencial" className="btn btn--outline btn--block" style={{ marginTop: '1.6rem' }}>Quero o Essencial</a>
           </div>
 
           {/* Plano Completo + Viora */}
@@ -70,7 +70,7 @@ export default function PricingPlans() {
               </li>
             </ul>
 
-            <a href="#" className="btn btn--viora btn--block" style={{ marginTop: '1.6rem' }}>Quero o Completo</a>
+            <a href="/checkout?plan=completo" className="btn btn--viora btn--block" style={{ marginTop: '1.6rem' }}>Quero o Completo</a>
           </div>
         </div>
 
