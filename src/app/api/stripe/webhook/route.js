@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { stripe, PLANS, planFromPriceId } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { notifyEmail } from '@/lib/notify-email';
+import { grantSubscriberRole, revokeSubscriberRole } from '@/lib/discord';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -110,9 +111,16 @@ export async function POST(req) {
 
         const { data: profile } = await supabaseAdmin
           .from('profiles')
-          .select('email, full_name')
+          .select('email, full_name, discord_user_id')
           .eq('id', userId)
           .maybeSingle();
+
+        // Se ja conectou o Discord antes (ex: renovacao), libera o cargo na
+        // hora. Quem ainda nao conectou recebe o cargo quando conectar
+        // (ver /api/auth/discord/callback).
+        if (profile?.discord_user_id) {
+          await grantSubscriberRole(profile.discord_user_id);
+        }
 
         await notifyEmail({
           event: isFirstInvoice ? 'purchase_approved' : 'payment_receipt',
@@ -179,6 +187,21 @@ export async function POST(req) {
             .from('subscriptions')
             .update({ status: 'canceled', cancel_at_period_end: false })
             .eq('stripe_subscription_id', sub.id);
+        }
+
+        // O cargo do Discord e estatico (nao reavalia sozinho tipo o Viora
+        // faz por valid_until) -- revoga sempre que a assinatura e deletada
+        // de verdade na Stripe, independente de ter sido cancelamento do
+        // usuario (cancel_at_period_end) ou "de fora".
+        if (row?.user_id) {
+          const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('discord_user_id')
+            .eq('id', row.user_id)
+            .maybeSingle();
+          if (profile?.discord_user_id) {
+            await revokeSubscriberRole(profile.discord_user_id);
+          }
         }
         break;
       }

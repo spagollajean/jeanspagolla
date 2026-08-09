@@ -332,7 +332,7 @@ export default function CheckoutPage() {
           <div>
             <div className="checkout-logo">Renascer</div>
 
-            {step !== 'already-subscribed' && step !== 'success' && (
+            {step !== 'already-subscribed' && (
               <div className="checkout-plan-toggle">
                 {Object.values(PLAN_INFO).map((p) => (
                   <button
@@ -394,14 +394,6 @@ export default function CheckoutPage() {
               >
                 Fazer upgrade para o Completo <ArrowRight size={16} />
               </button>
-            </div>
-          ) : step === 'success' ? (
-            <div style={{ textAlign: 'center' }}>
-              <CheckCircle2 size={40} style={{ color: 'var(--viora-emerald)', margin: '0 auto 1rem' }} />
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', color: 'var(--bone)' }}>Pagamento confirmado!</h2>
-              <p style={{ color: 'var(--bone-soft)', fontSize: '0.9rem', marginTop: '0.6rem' }}>
-                Sua assinatura do {plan.label} está ativa. Em breve você recebe por e-mail os próximos passos (acesso às aulas e à comunidade).
-              </p>
             </div>
           ) : step === 'account' ? (
             <form onSubmit={handleFormSubmit}>
@@ -518,15 +510,12 @@ export default function CheckoutPage() {
                   onComplete={async () => {
                     trackPurchase(plan.key === 'essencial' ? 59.90 : 79.90, { content_name: plan.label });
                     gaPurchase(plan.key === 'essencial' ? 59.90 : 79.90, plan.label);
-                    if (plan.includesViora) {
-                      // A ativacao real (subscriptions.status) vem do webhook do
-                      // Stripe, que roda em paralelo -- espera um instante antes
-                      // de mandar pro dashboard do app.
-                      await new Promise((r) => setTimeout(r, 2500));
-                      window.location.href = `${VIORA_APP_URL}/dashboard`;
-                    } else {
-                      setStep('success');
-                    }
+                    // A ativacao real (subscriptions.status) vem do webhook do
+                    // Stripe, que roda em paralelo -- espera um instante antes
+                    // de seguir. Todo mundo passa por conectar o Discord (e o
+                    // que libera o acesso a comunidade) antes de continuar.
+                    await new Promise((r) => setTimeout(r, 2500));
+                    window.location.href = `/discord-connect${plan.includesViora ? '?next=viora' : ''}`;
                   }}
                 />
               ) : (
