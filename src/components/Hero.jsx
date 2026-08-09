@@ -65,11 +65,11 @@ export default function Hero() {
                 <span className="badge-text">Metabolismo Otimizado por IA</span>
               </div>
 
-              <img src="/renascer/jean-hero.jpg" alt="Jean - Personal Trainer e Terapeuta" />
+              <img src="/renascer/jean-hero.jpg" alt="Jean - Fitness & Wellness e Terapeuta" />
 
               <div className="hero-photo__caption">
                 <span className="hero-photo__name">Jean Pagolla</span>
-                <span className="hero-photo__role">Personal Trainer & Terapeuta Integrativo</span>
+                <span className="hero-photo__role">Fitness & Wellness e Terapeuta Integrativo</span>
               </div>
             </div>
           </div>

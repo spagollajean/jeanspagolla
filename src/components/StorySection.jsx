@@ -13,7 +13,7 @@ export default function StorySection() {
           </div>
 
           <div>
-            <span className="story-credential">Personal Trainer · Terapeuta · Educação Física desde 2012</span>
+            <span className="story-credential">Fitness & Wellness · Terapeuta · Educação Física desde 2012</span>
 
             <h2 style={{ fontSize: 'clamp(1.8rem, 2.5vw, 2.6rem)', marginBottom: '1.2rem' }}>Antes de qualquer diploma, eu fui o cara que vivia cheio de remédio.</h2>
 

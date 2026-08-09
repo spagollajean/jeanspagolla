@@ -5,7 +5,7 @@ import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 export const metadata = {
   metadataBase: new URL('https://www.jeanspagolla.com.br'),
   title: 'Renascer + Viora AI: Desinflame seu corpo, recupere sua energia e sua fé em 30 dias',
-  description: 'Protocolo completo de desintoxicação, treino e mentalidade por Jean (Personal Trainer e Terapeuta) com inteligência nutricional e calórica do ecossistema Viora.',
+  description: 'Protocolo completo de desintoxicação, treino e mentalidade por Jean (Fitness & Wellness e Terapeuta) com inteligência nutricional e calórica do ecossistema Viora.',
   keywords: ['desinflamação', 'renascer', 'viora', 'dieta', 'treino', 'calorias', 'saúde', 'terapia'],
   robots: { index: true, follow: true },
   alternates: {
@@ -39,13 +39,13 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Service',
   name: 'Renascer',
-  description: 'Protocolo de desintoxicação, desinflamação, treino e mentalidade com acompanhamento direto, por Jean, Personal Trainer e Terapeuta.',
+  description: 'Protocolo de desintoxicação, desinflamação, treino e mentalidade com acompanhamento direto, por Jean, Fitness & Wellness e Terapeuta.',
   url: 'https://www.jeanspagolla.com.br',
   image: 'https://www.jeanspagolla.com.br/og-image.jpg',
   provider: {
     '@type': 'Person',
     name: 'Jean',
-    jobTitle: 'Personal Trainer e Terapeuta',
+    jobTitle: 'Fitness & Wellness e Terapeuta',
   },
   areaServed: 'BR',
   offers: [

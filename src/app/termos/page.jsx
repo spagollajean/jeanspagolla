@@ -17,7 +17,7 @@ export default function TermosPage() {
 
       <h2>2. O que é o Renascer</h2>
       <p>
-        O Renascer é um programa de acompanhamento conduzido por Jean Spagolla (Personal Trainer e
+        O Renascer é um programa de acompanhamento conduzido por Jean Spagolla (Fitness & Wellness e
         Terapeuta), com dois planos:
       </p>
       <ul>

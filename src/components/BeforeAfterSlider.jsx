@@ -1,34 +1,30 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useRef, useState, useCallback } from 'react';
 
 export default function BeforeAfterSlider() {
   const [sliderPos, setSliderPos] = useState(50);
   const containerRef = useRef(null);
-  const isDragging = useRef(false);
 
-  const updatePosition = (clientX) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    let x = clientX - rect.left;
-    if (x < 0) x = 0;
-    if (x > rect.width) x = rect.width;
-    const pct = (x / rect.width) * 100;
-    setSliderPos(pct);
+  const updatePosition = useCallback((clientX) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = Math.min(Math.max(clientX - rect.left, 0), rect.width);
+    setSliderPos((x / rect.width) * 100);
+  }, []);
+
+  // Pointer Events (unifica mouse/touch/caneta) + setPointerCapture: o
+  // arraste continua funcionando mesmo se o cursor sair da caixa antes de
+  // soltar o botão -- com mouse events simples (versão anterior) o drag
+  // travava assim que o mouse cruzava a borda do container.
+  const handlePointerDown = (e) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    updatePosition(e.clientX);
   };
-
-  const handleMouseDown = () => { isDragging.current = true; };
-  const handleMouseUp = () => { isDragging.current = false; };
-  const handleMouseMove = (e) => {
-    if (isDragging.current) {
-      updatePosition(e.clientX);
-    }
-  };
-
-  const handleTouchMove = (e) => {
-    if (e.touches && e.touches[0]) {
-      updatePosition(e.touches[0].clientX);
-    }
+  const handlePointerMove = (e) => {
+    if (e.buttons !== 1 && e.pointerType === 'mouse') return;
+    updatePosition(e.clientX);
   };
 
   return (
@@ -40,29 +36,29 @@ export default function BeforeAfterSlider() {
           <p style={{ color: 'var(--bone-soft)' }}>A evolução física e metabólica real de quem seguiu o Protocolo Renascer + Viora AI.</p>
         </div>
 
-        <div 
+        <div
           className="comparison-slider-container"
           ref={containerRef}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onTouchMove={handleTouchMove}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
         >
           <div className="comparison-img-before">
-            <img src="/renascer/natalia-andrade-antes.jpg" alt="Antes do Protocolo" />
+            <img src="/renascer/natalia-andrade-antes.jpg" alt="Antes do Protocolo" draggable={false} />
             <span className="slider-label slider-label--before">Antes: Inflamação & Retenção</span>
           </div>
-          <div className="comparison-img-after" style={{ width: `${sliderPos}%` }}>
-            <img src="/renascer/natalia-andrade-depois.jpg" alt="Depois do Protocolo" />
+          <div className="comparison-img-after" style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}>
+            <img src="/renascer/natalia-andrade-depois.jpg" alt="Depois do Protocolo" draggable={false} />
             <span className="slider-label slider-label--after">Depois: -37kg, Desinflamada & Vital</span>
           </div>
-          <div 
-            className="comparison-slider-handle" 
-            style={{ left: `${sliderPos}%` }}
-            onMouseDown={handleMouseDown}
-            onTouchStart={handleMouseDown}
-          >
-            <div className="handle-circle">↔</div>
+
+          <div className="comparison-divider" style={{ left: `${sliderPos}%` }} />
+          <div className="comparison-slider-handle" style={{ left: `${sliderPos}%` }}>
+            <div className="handle-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" transform="translate(-3,0)" />
+                <polyline points="9 18 15 12 9 6" transform="translate(3,0)" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>
