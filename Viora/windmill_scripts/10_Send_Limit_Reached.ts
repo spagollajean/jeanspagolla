@@ -1,41 +1,30 @@
 import * as wmill from "windmill-client";
+import { sendWhatsAppMessage } from "/u/admin/lib_whatsapp";
 
 /**
  * Windmill Script 10: Send Limit Reached Message
- * 
+ *
  * Roda quando o estado é LIMIT_REACHED.
  * Envia uma mensagem informando que a cota gratuita acabou e oferece o plano PRO.
  */
 export async function main(
   remote_jid: string
 ) {
-  const META_TOKEN = await wmill.getVariable("u/admin/META_ACCESS_TOKEN");
-  const META_PHONE_NUMBER_ID = await wmill.getVariable("u/admin/META_PHONE_NUMBER_ID");
+  const EVOLUTION_API_URL = await wmill.getVariable("u/admin/EVOLUTION_API_URL");
+  const EVOLUTION_API_KEY = await wmill.getVariable("u/admin/EVOLUTION_API_KEY");
+  const EVOLUTION_INSTANCE = await wmill.getVariable("u/admin/EVOLUTION_INSTANCE");
 
-  if (!META_TOKEN || !META_PHONE_NUMBER_ID) {
-    throw new Error("Missing Meta API variables");
+  if (!EVOLUTION_API_URL || !EVOLUTION_API_KEY || !EVOLUTION_INSTANCE) {
+    throw new Error("Missing Evolution API variables");
   }
 
-  const GRAPH_API_URL = "https://graph.facebook.com/v19.0";
+  const text =
+    "🚨  *ASSINATURA INATIVA*\n\n" +
+    "▬▬▬▬▬▬▬▬▬▬▬▬\n\n" +
+    "Pra eu analisar seus pratos e seu corpo, você precisa estar no plano *Renascer Completo* (já inclui o Viora).\n\n" +
+    "👉 https://www.jeanspagolla.com.br/checkout?plan=completo";
 
-  const text = "🚨 *Assinatura Inativa!*\n\nPara eu analisar seus pratos e seu corpo, você precisa estar no plano Renascer Completo (já inclui o Viora).\n\n👉 Assine aqui:\nhttps://www.jeanspagolla.com.br/checkout?plan=completo";
-  
-  const res = await fetch(`${GRAPH_API_URL}/${META_PHONE_NUMBER_ID}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${META_TOKEN}` },
-      body: JSON.stringify({
-          messaging_product: "whatsapp",
-          recipient_type: "individual",
-          to: remote_jid,
-          type: "text",
-          text: { body: text }
-      })
-  });
+  const res = await sendWhatsAppMessage(EVOLUTION_API_URL as string, EVOLUTION_API_KEY as string, EVOLUTION_INSTANCE as string, remote_jid, text);
 
-  if (!res.ok) {
-      console.error("Erro ao enviar limit_msg", await res.text());
-      return { success: false };
-  }
-
-  return { success: true };
+  return { success: res.ok };
 }

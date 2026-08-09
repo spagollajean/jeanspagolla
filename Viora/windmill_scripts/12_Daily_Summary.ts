@@ -1,22 +1,24 @@
 //nobundling
 import * as wmill from "windmill-client";
 import { createClient } from "@supabase/supabase-js";
-import { generatePhoneCandidates } from "/u/admin/lib_whatsapp";
+import { generatePhoneCandidates, sendWhatsAppMessage as sendWA } from "/u/admin/lib_whatsapp";
 
 /**
  * Resumo / lembrete diário do Viora.
  * Roda agendado (ex.: 21h BRT). Envia SÓ para quem mandou mensagem nas
- * últimas ~23h (dentro da janela de serviço de 24h do WhatsApp = grátis,
- * sem template pago da Meta). Resume as refeições do dia ou dá um empurrão.
+ * últimas ~23h (evita mandar mensagem pra quem sumiu -- a Evolution/WhatsApp
+ * pessoal nao tem a restricao de janela de 24h da Meta Business API, mas
+ * mandar sem parcimonia pra numero inativo aumenta risco de o WhatsApp
+ * marcar o numero como spam). Resume as refeições do dia ou dá um empurrão.
  */
 
 export async function main() {
-  const META_TOKEN = await wmill.getVariable("u/admin/META_ACCESS_TOKEN") as string;
-  const META_PHONE_ID = await wmill.getVariable("u/admin/META_PHONE_NUMBER_ID") as string;
+  const EVOLUTION_API_URL = await wmill.getVariable("u/admin/EVOLUTION_API_URL") as string;
+  const EVOLUTION_API_KEY = await wmill.getVariable("u/admin/EVOLUTION_API_KEY") as string;
+  const EVOLUTION_INSTANCE = await wmill.getVariable("u/admin/EVOLUTION_INSTANCE") as string;
   const SUPABASE_URL = await wmill.getVariable("u/admin/SUPABASE_URL") as string;
   const SUPABASE_KEY = await wmill.getVariable("u/admin/SUPABASE_SERVICE_ROLE_KEY") as string;
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-  const GRAPH = "https://graph.facebook.com/v19.0";
 
   // Janela grátis: interagiu nas últimas 23h
   const since = new Date(Date.now() - 23 * 60 * 60 * 1000).toISOString();
@@ -82,11 +84,7 @@ export async function main() {
       ? `📊 *Resumo de hoje*\n\n🍽️ *${n} ${n === 1 ? "refeição" : "refeições"}:*\n${mealLines.join("\n")}\n\n🔥 *${Math.round(kcal)}* kcal\n🍗 Proteína: *${Math.round(prot)}g*\n🍞 Carbo: *${Math.round(carbs)}g* · 🥑 Gordura: *${Math.round(fat)}g*\n🌾 Fibra: *${Math.round(fiber)}g* · 🧂 Sódio: *${Math.round(sodium)}mg*${avgScore ? `\n⭐ Nota média dos pratos: *${avgScore}/10*` : ""}\n\nMandou bem! Amanhã tem mais 💪`
       : `👀 Vi que você passou por aqui hoje mas não registrou nenhuma refeição.\n\nQue tal mandar a foto da próxima? Leva 5 segundos e eu cuido do resto! 🍽️`;
 
-    const res = await fetch(`${GRAPH}/${META_PHONE_ID}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${META_TOKEN}` },
-      body: JSON.stringify({ messaging_product: "whatsapp", recipient_type: "individual", to: phone, type: "text", text: { body } })
-    });
+    const res = await sendWA(EVOLUTION_API_URL, EVOLUTION_API_KEY, EVOLUTION_INSTANCE, phone, body);
     if (res.ok) sent++; else { skipped++; console.error("Falha envio", phone, await res.text()); }
   }
 

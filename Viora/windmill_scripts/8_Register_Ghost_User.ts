@@ -1,6 +1,6 @@
 import * as wmill from "windmill-client";
 import { createClient } from "@supabase/supabase-js";
-import { normalizePhoneBR } from "/u/admin/lib_whatsapp";
+import { normalizePhoneBR, sendWhatsAppMessage as sendWA } from "/u/admin/lib_whatsapp";
 
 /**
  * Windmill Script 8: Register Ghost User (WhatsApp First)
@@ -13,30 +13,20 @@ export async function main(
   remote_jid: string,
   user_name: string
 ) {
-  const META_TOKEN = await wmill.getVariable("u/admin/META_ACCESS_TOKEN");
   const SUPABASE_URL = await wmill.getVariable("u/admin/SUPABASE_URL");
   const SUPABASE_KEY = await wmill.getVariable("u/admin/SUPABASE_SERVICE_ROLE_KEY");
-  const META_PHONE_NUMBER_ID = await wmill.getVariable("u/admin/META_PHONE_NUMBER_ID");
+  const EVOLUTION_API_URL = await wmill.getVariable("u/admin/EVOLUTION_API_URL");
+  const EVOLUTION_API_KEY = await wmill.getVariable("u/admin/EVOLUTION_API_KEY");
+  const EVOLUTION_INSTANCE = await wmill.getVariable("u/admin/EVOLUTION_INSTANCE");
 
-  if (!META_TOKEN || !SUPABASE_URL || !SUPABASE_KEY || !META_PHONE_NUMBER_ID) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || !EVOLUTION_API_URL || !EVOLUTION_API_KEY || !EVOLUTION_INSTANCE) {
     throw new Error("Missing variables");
   }
 
   const supabase = createClient(SUPABASE_URL as string, SUPABASE_KEY as string);
-  const GRAPH_API_URL = "https://graph.facebook.com/v19.0";
 
   async function sendWhatsAppMessage(text: string) {
-      await fetch(`${GRAPH_API_URL}/${META_PHONE_NUMBER_ID}/messages`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${META_TOKEN}` },
-          body: JSON.stringify({
-              messaging_product: "whatsapp",
-              recipient_type: "individual",
-              to: remote_jid,
-              type: "text",
-              text: { body: text }
-          })
-      });
+      await sendWA(EVOLUTION_API_URL as string, EVOLUTION_API_KEY as string, EVOLUTION_INSTANCE as string, remote_jid, text);
   }
 
   // Nome capturado da mensagem do usuário
@@ -77,7 +67,12 @@ export async function main(
   }).eq("phone_number", sender_number);
 
   // 4. Enviar mensagem de Boas Vindas
-  const welcomeText = `Prontinho, ${fullName}! 🎉\n\nSua conta foi criada.\n\nMas para você continuar usando o seu Personal e Nutri de bolso, você precisa assinar o plano *Renascer Completo* (já inclui o Viora).\n\n👉 Acesse: https://www.jeanspagolla.com.br/checkout?plan=completo e ative seu plano agora mesmo!`;
+  const welcomeText =
+    `🎉  *PRONTINHO, ${fullName.toUpperCase()}!*\n\n` +
+    "▬▬▬▬▬▬▬▬▬▬▬▬\n\n" +
+    "Sua conta foi criada.\n\n" +
+    "Pra continuar usando seu personal e nutri de bolso, você precisa assinar o plano *Renascer Completo* (já inclui o Viora).\n\n" +
+    "👉 https://www.jeanspagolla.com.br/checkout?plan=completo";
 
   await sendWhatsAppMessage(welcomeText);
 

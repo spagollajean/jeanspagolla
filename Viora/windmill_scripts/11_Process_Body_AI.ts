@@ -1,7 +1,7 @@
 //nobundling
 import * as wmill from "windmill-client";
 import { createClient } from "@supabase/supabase-js";
-import { generatePhoneCandidates, markReadWithTyping } from "/u/admin/lib_whatsapp";
+import { generatePhoneCandidates, markReadWithTyping, sendWhatsAppMessage as sendWA, getMediaBase64 } from "/u/admin/lib_whatsapp";
 
 /**
  * Windmill Script 11: Process Body AI (Dieta e Treino) with OpenAI
@@ -215,49 +215,41 @@ export async function main(
   media_id: string,
   user_id?: string
 ) {
-  const META_TOKEN = await wmill.getVariable("u/admin/META_ACCESS_TOKEN") as string;
-  const META_PHONE_ID = await wmill.getVariable("u/admin/META_PHONE_NUMBER_ID") as string;
   const SUPABASE_URL = await wmill.getVariable("u/admin/SUPABASE_URL") as string;
   const SUPABASE_KEY = await wmill.getVariable("u/admin/SUPABASE_SERVICE_ROLE_KEY") as string;
   const OPENAI_API_KEY = await wmill.getVariable("u/admin/OPENAI_API_KEY") as string;
+  const EVOLUTION_API_URL = await wmill.getVariable("u/admin/EVOLUTION_API_URL") as string;
+  const EVOLUTION_API_KEY = await wmill.getVariable("u/admin/EVOLUTION_API_KEY") as string;
+  const EVOLUTION_INSTANCE = await wmill.getVariable("u/admin/EVOLUTION_INSTANCE") as string;
 
-  if (!META_TOKEN || !SUPABASE_URL || !SUPABASE_KEY || !OPENAI_API_KEY || !META_PHONE_ID) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || !OPENAI_API_KEY || !EVOLUTION_API_URL || !EVOLUTION_API_KEY || !EVOLUTION_INSTANCE) {
     throw new Error("Missing required environment variables.");
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-  const GRAPH_API = "https://graph.facebook.com/v19.0";
 
   async function sendWhatsAppMessage(text: string) {
-    await fetch(`${GRAPH_API}/${META_PHONE_ID}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${META_TOKEN}` },
-        body: JSON.stringify({
-            messaging_product: "whatsapp",
-            recipient_type: "individual",
-            to: remote_jid,
-            type: "text",
-            text: { body: text }
-        })
-    });
+    await sendWA(EVOLUTION_API_URL, EVOLUTION_API_KEY, EVOLUTION_INSTANCE, remote_jid, text);
   }
 
   async function sendWhatsAppImage(link: string, caption?: string) {
-    await fetch(`${GRAPH_API}/${META_PHONE_ID}/messages`, {
+    await fetch(`${EVOLUTION_API_URL}/message/sendMedia/${EVOLUTION_INSTANCE}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${META_TOKEN}` },
-        body: JSON.stringify({
-            messaging_product: "whatsapp",
-            recipient_type: "individual",
-            to: remote_jid,
-            type: "image",
-            image: caption ? { link, caption } : { link }
-        })
+        headers: { "Content-Type": "application/json", apikey: EVOLUTION_API_KEY },
+        body: JSON.stringify({ number: remote_jid, mediatype: "image", media: link, caption: caption || undefined })
     });
   }
 
-  // 1. Ticks azuis + "digitando..." e mensagem de carregamento
-  await markReadWithTyping(META_TOKEN, META_PHONE_ID, message_id);
+  async function sendWhatsAppDocument(link: string, filename: string, caption?: string) {
+    await fetch(`${EVOLUTION_API_URL}/message/sendMedia/${EVOLUTION_INSTANCE}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: EVOLUTION_API_KEY },
+        body: JSON.stringify({ number: remote_jid, mediatype: "document", media: link, fileName: filename, caption: caption || undefined })
+    });
+  }
+
+  // 1. Ticks azuis (Evolution nao tem "digitando..." tao direto quanto a Meta tinha)
+  await markReadWithTyping(EVOLUTION_API_URL, EVOLUTION_API_KEY, EVOLUTION_INSTANCE, remote_jid, message_id);
   await sendWhatsAppMessage("⏳ *Analisando seu biótipo e criando sua dieta e treino...* (Isso pode levar alguns segundos).");
 
   // 2. Pegar User ID (usa o do flow se disponivel, senao busca por telefone)
@@ -307,23 +299,16 @@ export async function main(
   // A partir daqui, qualquer falha (download da midia, OpenAI, parsing) cai no catch abaixo,
   // que avisa o usuario em vez de deixa-lo so com o "Analisando..." pra sempre.
   try {
-    // 3. Baixar Imagem da Meta
-    const mediaRes = await fetch(`${GRAPH_API}/${media_id}`, {
-        headers: { Authorization: `Bearer ${META_TOKEN}` }
-    });
-    if (!mediaRes.ok) throw new Error("Erro na URL da Imagem");
-    const mediaData = await mediaRes.json();
-    if (!mediaData.url) {
-        console.error("Falha ao obter URL da imagem. Resposta da Meta:", JSON.stringify(mediaData));
-        throw new Error("Falha ao obter URL da imagem.");
+    // 3. Baixar imagem via Evolution API (media_id aqui e o message_id, nao
+    // um ID de midia separado como a Meta tinha)
+    const base64Img = await getMediaBase64(
+      EVOLUTION_API_URL, EVOLUTION_API_KEY, EVOLUTION_INSTANCE,
+      { remoteJid: remote_jid, id: media_id, fromMe: false }
+    );
+    if (!base64Img) {
+        throw new Error("Falha ao obter a imagem da Evolution API.");
     }
-
-    const imgRes = await fetch(mediaData.url, {
-        headers: { Authorization: `Bearer ${META_TOKEN}` }
-    });
-    const imgBuffer = await imgRes.arrayBuffer();
-    const base64Img = Buffer.from(imgBuffer).toString("base64");
-    const mimeType = imgRes.headers.get("content-type") || "image/jpeg";
+    const mimeType = "image/jpeg";
 
     // 3.1 Limite Diário de Avaliação Física (2 por dia, horário de Brasília)
     const COACH_DAILY_LIMIT = 2;
@@ -534,7 +519,7 @@ Regras IMPORTANTES:
     try {
         const ext = mimeType.includes("png") ? "png" : "jpg";
         const candidatePath = `${profile.id}/coach_${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("coach-uploads").upload(candidatePath, Buffer.from(imgBuffer), {
+        const { error: uploadError } = await supabase.storage.from("coach-uploads").upload(candidatePath, Buffer.from(base64Img, 'base64'), {
             contentType: mimeType,
             upsert: true
         });
@@ -615,17 +600,7 @@ Regras IMPORTANTES:
             const { data: urlData } = await supabase.storage.from("coach-pdfs").createSignedUrl(storagePath, 3600);
 
             if (urlData?.signedUrl) {
-                await fetch(`${GRAPH_API}/${META_PHONE_ID}/messages`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${META_TOKEN}` },
-                    body: JSON.stringify({
-                        messaging_product: "whatsapp",
-                        recipient_type: "individual",
-                        to: remote_jid,
-                        type: "document",
-                        document: { link: urlData.signedUrl, filename: `${pdfFileName}.pdf`, caption: "📋 Protocolo Titan — seu Treino e Dieta completos (2 páginas)" }
-                    })
-                });
+                await sendWhatsAppDocument(urlData.signedUrl, `${pdfFileName}.pdf`, "📋 Protocolo Titan — seu Treino e Dieta completos (2 páginas)");
             }
         }
     } catch (pdfErr) {

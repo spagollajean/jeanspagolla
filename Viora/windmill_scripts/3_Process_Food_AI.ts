@@ -1,7 +1,7 @@
 //nobundling
 import * as wmill from "windmill-client";
 import { createClient } from "@supabase/supabase-js";
-import { generatePhoneCandidates, markReadWithTyping } from "/u/admin/lib_whatsapp";
+import { generatePhoneCandidates, markReadWithTyping, sendWhatsAppMessage as sendWA, getMediaBase64 } from "/u/admin/lib_whatsapp";
 
 /**
  * Windmill Script 3: Process Food Image with OpenAI
@@ -14,53 +14,36 @@ export async function main(
   coach_personality: string = "gordon_ramsay",
   user_id?: string
 ) {
-  const META_TOKEN = await wmill.getVariable("u/admin/META_ACCESS_TOKEN");
   const SUPABASE_URL = await wmill.getVariable("u/admin/SUPABASE_URL");
   const SUPABASE_KEY = await wmill.getVariable("u/admin/SUPABASE_SERVICE_ROLE_KEY");
   const OPENAI_API_KEY = await wmill.getVariable("u/admin/OPENAI_API_KEY");
-  const META_PHONE_NUMBER_ID = await wmill.getVariable("u/admin/META_PHONE_NUMBER_ID");
+  const EVOLUTION_API_URL = await wmill.getVariable("u/admin/EVOLUTION_API_URL");
+  const EVOLUTION_API_KEY = await wmill.getVariable("u/admin/EVOLUTION_API_KEY");
+  const EVOLUTION_INSTANCE = await wmill.getVariable("u/admin/EVOLUTION_INSTANCE");
 
-  if (!META_TOKEN || !SUPABASE_URL || !SUPABASE_KEY || !OPENAI_API_KEY || !META_PHONE_NUMBER_ID) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || !OPENAI_API_KEY || !EVOLUTION_API_URL || !EVOLUTION_API_KEY || !EVOLUTION_INSTANCE) {
     throw new Error("Missing required environment variables.");
   }
 
   const supabase = createClient(SUPABASE_URL as string, SUPABASE_KEY as string);
-  const GRAPH_API_URL = "https://graph.facebook.com/v19.0";
 
-  // Ticks azuis + "digitando..." enquanto a IA analisa (não bloqueia o fluxo)
-  await markReadWithTyping(META_TOKEN as string, META_PHONE_NUMBER_ID as string, message_id);
+  // Ticks azuis (Evolution nao tem "digitando..." tao direto quanto a Meta tinha)
+  await markReadWithTyping(EVOLUTION_API_URL as string, EVOLUTION_API_KEY as string, EVOLUTION_INSTANCE as string, remote_jid, message_id);
 
   async function sendWhatsAppMessage(text: string) {
-      await fetch(`${GRAPH_API_URL}/${META_PHONE_NUMBER_ID}/messages`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${META_TOKEN}` },
-          body: JSON.stringify({
-              messaging_product: "whatsapp",
-              recipient_type: "individual",
-              to: remote_jid,
-              type: "text",
-              text: { body: text }
-          })
-      });
+      await sendWA(EVOLUTION_API_URL as string, EVOLUTION_API_KEY as string, EVOLUTION_INSTANCE as string, remote_jid, text);
   }
 
   async function sendWhatsAppImage(imageUrl: string, caption?: string) {
-      const payload: any = {
-          messaging_product: "whatsapp",
-          recipient_type: "individual",
-          to: remote_jid,
-          type: "image",
-          image: {
-              link: imageUrl
-          }
-      };
-      if (caption) {
-          payload.image.caption = caption;
-      }
-      const res = await fetch(`${GRAPH_API_URL}/${META_PHONE_NUMBER_ID}/messages`, {
+      const res = await fetch(`${EVOLUTION_API_URL}/message/sendMedia/${EVOLUTION_INSTANCE}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${META_TOKEN}` },
-          body: JSON.stringify(payload)
+          headers: { "Content-Type": "application/json", apikey: EVOLUTION_API_KEY as string },
+          body: JSON.stringify({
+              number: remote_jid,
+              mediatype: "image",
+              media: imageUrl,
+              caption: caption || undefined,
+          })
       });
       console.log("Send image response status:", res.status);
   }
@@ -130,20 +113,19 @@ export async function main(
   // que avisa o usuario em vez de deixa-lo so com o "Analisando..." pra sempre.
   try {
     console.log(`Baixando mídia ${media_id}...`);
-    const mediaUrlRes = await fetch(`https://graph.facebook.com/v19.0/${media_id}`, {
-      headers: { "Authorization": `Bearer ${META_TOKEN}` }
-    });
-    const mediaUrlData = await mediaUrlRes.json();
-    if (!mediaUrlData.url) {
-      console.error("Falha ao obter URL da imagem. Resposta da Meta:", JSON.stringify(mediaUrlData));
-      throw new Error("Falha ao obter URL da imagem.");
+    // Evolution API: busca o base64 direto pela key da mensagem original
+    // (media_id aqui e o mesmo message_id, nao um ID de midia separado
+    // como a Meta tinha).
+    const base64Image = await getMediaBase64(
+      EVOLUTION_API_URL as string,
+      EVOLUTION_API_KEY as string,
+      EVOLUTION_INSTANCE as string,
+      { remoteJid: remote_jid, id: media_id, fromMe: false }
+    );
+    if (!base64Image) {
+      throw new Error("Falha ao obter a imagem da Evolution API.");
     }
-
-    const imageRes = await fetch(mediaUrlData.url, { headers: { "Authorization": `Bearer ${META_TOKEN}` } });
-    const arrayBuffer = await imageRes.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const base64Image = buffer.toString('base64');
-    const mimeType = imageRes.headers.get("content-type") || "image/jpeg";
+    const mimeType = "image/jpeg";
 
     // 2. Personalidades
     let personalityInstruction = "";
@@ -315,9 +297,10 @@ Formato OBRIGATÓRIO:
         const storagePath = `${user.id}/${fileName}`;
         
         console.log(`Enviando foto da comida para Supabase Storage: consultas/${storagePath}...`);
+        const rawImageBuffer = Buffer.from(base64Image, 'base64');
         const { error: uploadErr } = await supabase.storage
             .from('consultas')
-            .upload(storagePath, buffer, {
+            .upload(storagePath, rawImageBuffer, {
                 contentType: mimeType,
                 upsert: true
             });

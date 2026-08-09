@@ -1,5 +1,6 @@
 import * as wmill from "windmill-client";
 import { createClient } from "@supabase/supabase-js";
+import { sendWhatsAppMessage } from "/u/admin/lib_whatsapp";
 
 /**
  * Windmill Script 9: Ask User Name
@@ -11,17 +12,17 @@ export async function main(
   sender_number: string,
   remote_jid: string
 ) {
-  const META_TOKEN = await wmill.getVariable("u/admin/META_ACCESS_TOKEN");
   const SUPABASE_URL = await wmill.getVariable("u/admin/SUPABASE_URL");
   const SUPABASE_KEY = await wmill.getVariable("u/admin/SUPABASE_SERVICE_ROLE_KEY");
-  const META_PHONE_NUMBER_ID = await wmill.getVariable("u/admin/META_PHONE_NUMBER_ID");
+  const EVOLUTION_API_URL = await wmill.getVariable("u/admin/EVOLUTION_API_URL");
+  const EVOLUTION_API_KEY = await wmill.getVariable("u/admin/EVOLUTION_API_KEY");
+  const EVOLUTION_INSTANCE = await wmill.getVariable("u/admin/EVOLUTION_INSTANCE");
 
-  if (!META_TOKEN || !SUPABASE_URL || !SUPABASE_KEY || !META_PHONE_NUMBER_ID) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || !EVOLUTION_API_URL || !EVOLUTION_API_KEY || !EVOLUTION_INSTANCE) {
     throw new Error("Missing variables");
   }
 
   const supabase = createClient(SUPABASE_URL as string, SUPABASE_KEY as string);
-  const GRAPH_API_URL = "https://graph.facebook.com/v19.0";
 
   // 1. Atualizar state para IDLE (reset)
   await supabase
@@ -30,19 +31,15 @@ export async function main(
       .eq("phone_number", sender_number);
 
   // 2. Avisar que precisa criar a conta no site
-  const text = "👋 Olá! Vi que você ainda não tem uma conta no Viora.\n\nPara eu começar a analisar seus pratos e seu corpo com a nossa IA, você precisa assinar o plano Renascer Completo (que já inclui o Viora).\n\n👉 Acesse agora: https://www.jeanspagolla.com.br/checkout?plan=completo\n\n*(Depois de assinar, é só voltar aqui e me mandar um Oi!)*";
-  
-  await fetch(`${GRAPH_API_URL}/${META_PHONE_NUMBER_ID}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${META_TOKEN}` },
-      body: JSON.stringify({
-          messaging_product: "whatsapp",
-          recipient_type: "individual",
-          to: remote_jid,
-          type: "text",
-          text: { body: text }
-      })
-  });
+  const text =
+    "👋  *OI! AINDA NÃO TE CONHEÇO*\n\n" +
+    "▬▬▬▬▬▬▬▬▬▬▬▬\n\n" +
+    "Pra eu começar a analisar seus pratos e seu corpo com IA, você precisa assinar o plano *Renascer Completo* (já inclui o Viora).\n\n" +
+    "👉 https://www.jeanspagolla.com.br/checkout?plan=completo\n\n" +
+    "▬▬▬▬▬▬▬▬▬▬▬▬\n\n" +
+    "_Depois de assinar, é só voltar aqui e mandar um_ *oi* _de novo._";
+
+  await sendWhatsAppMessage(EVOLUTION_API_URL as string, EVOLUTION_API_KEY as string, EVOLUTION_INSTANCE as string, remote_jid, text);
 
   return { success: true, new_state: "IDLE" };
 }

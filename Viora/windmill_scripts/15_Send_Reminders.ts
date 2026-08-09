@@ -1,7 +1,7 @@
 //nobundling
 import * as wmill from "windmill-client";
 import { createClient } from "@supabase/supabase-js";
-import { generatePhoneCandidates } from "/u/admin/lib_whatsapp";
+import { generatePhoneCandidates, sendWhatsAppMessage as sendWA } from "/u/admin/lib_whatsapp";
 
 /**
  * Windmill Script 15: Send Reminders (água/refeição)
@@ -51,12 +51,13 @@ function currentSlot(): string | null {
 }
 
 export async function main() {
-  const META_TOKEN = await wmill.getVariable("u/admin/META_ACCESS_TOKEN") as string;
-  const META_PHONE_ID = await wmill.getVariable("u/admin/META_PHONE_NUMBER_ID") as string;
+  const EVOLUTION_API_URL = await wmill.getVariable("u/admin/EVOLUTION_API_URL") as string;
+  const EVOLUTION_API_KEY = await wmill.getVariable("u/admin/EVOLUTION_API_KEY") as string;
+  const EVOLUTION_INSTANCE = await wmill.getVariable("u/admin/EVOLUTION_INSTANCE") as string;
   const SUPABASE_URL = await wmill.getVariable("u/admin/SUPABASE_URL") as string;
   const SUPABASE_KEY = await wmill.getVariable("u/admin/SUPABASE_SERVICE_ROLE_KEY") as string;
 
-  if (!META_TOKEN || !META_PHONE_ID || !SUPABASE_URL || !SUPABASE_KEY) {
+  if (!EVOLUTION_API_URL || !EVOLUTION_API_KEY || !EVOLUTION_INSTANCE || !SUPABASE_URL || !SUPABASE_KEY) {
     throw new Error("Missing required variables");
   }
 
@@ -135,17 +136,7 @@ export async function main() {
         body = `🌙 ${oi}já pensou no jantar?\n\nMe manda a *foto do prato* quando for comer que eu fecho o balanço do seu dia. 📸`;
       }
 
-      const res = await fetch(`https://graph.facebook.com/v19.0/${META_PHONE_ID}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${META_TOKEN}` },
-        body: JSON.stringify({
-          messaging_product: "whatsapp",
-          recipient_type: "individual",
-          to: ses.phone_number,
-          type: "text",
-          text: { body }
-        })
-      });
+      const res = await sendWA(EVOLUTION_API_URL, EVOLUTION_API_KEY, EVOLUTION_INSTANCE, ses.phone_number, body);
       if (!res.ok) {
         console.error(`Falha ao enviar lembrete pra ${ses.phone_number}:`, res.status, await res.text());
         continue;

@@ -1,6 +1,10 @@
 /**
  * Lib compartilhada do fluxo WhatsApp do Viora.
  * Importar via: import { generatePhoneCandidates, sendWhatsAppMessage } from "/u/admin/lib_whatsapp";
+ *
+ * Migrado de Meta Cloud API pra Evolution API (self-hosted, conecta via
+ * QR code no WhatsApp normal do Jean -- nao precisa de aprovacao/verificacao
+ * de negocio da Meta).
  */
 
 /**
@@ -55,62 +59,96 @@ export function generatePhoneCandidates(raw: string): string[] {
 }
 
 /**
- * Envia mensagem via Graph API do WhatsApp, com 1 retry em caso de erro transitorio
- * (429 rate limit ou 5xx). Nao lanca excecao em falha - retorna a Response pro chamador decidir.
+ * Envia mensagem de texto via Evolution API, com 1 retry em caso de erro
+ * transitorio (429 rate limit ou 5xx). Nao lanca excecao em falha - retorna
+ * a Response pro chamador decidir.
+ *
+ * `phoneNumberId` foi mantido no nome do parametro por compatibilidade com
+ * quem ja chama essa funcao, mas na Evolution isso e o numero de destino
+ * (sender_number), nao um Phone Number ID da Meta.
  */
 export async function sendWhatsAppMessage(
-  metaToken: string,
-  phoneNumberId: string,
-  payload: Record<string, any>,
+  evolutionApiUrl: string,
+  evolutionApiKey: string,
+  evolutionInstance: string,
+  toNumber: string,
+  text: string,
   retries: number = 1
 ): Promise<Response> {
-  const url = `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`;
+  const url = `${evolutionApiUrl}/message/sendText/${evolutionInstance}`;
   let lastRes: Response;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     lastRes = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${metaToken}` },
-      body: JSON.stringify(payload)
+      headers: { "Content-Type": "application/json", apikey: evolutionApiKey },
+      body: JSON.stringify({ number: toNumber, text })
     });
 
     if (lastRes.ok) return lastRes;
 
-    // So vale retry em erro transitorio (rate limit ou erro de servidor)
     const isTransient = lastRes.status === 429 || lastRes.status >= 500;
     if (!isTransient || attempt === retries) break;
 
     await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
   }
 
-  console.error("Falha ao enviar mensagem WhatsApp:", lastRes!.status, await lastRes!.text());
+  console.error("Falha ao enviar mensagem WhatsApp (Evolution):", lastRes!.status, await lastRes!.text());
   return lastRes!;
 }
 
 /**
- * Marca a mensagem recebida como lida (ticks azuis) e liga o indicador
- * "digitando..." — o indicador some sozinho quando a proxima mensagem for
- * enviada (ou apos ~25s). Falha aqui nunca deve quebrar o fluxo.
+ * Marca a mensagem recebida como lida (ticks azuis). Evolution nao tem um
+ * indicador de "digitando" tao direto quanto a Meta Cloud API tinha -- so a
+ * leitura mesmo. Falha aqui nunca deve quebrar o fluxo.
  */
 export async function markReadWithTyping(
-  metaToken: string,
-  phoneNumberId: string,
+  evolutionApiUrl: string,
+  evolutionApiKey: string,
+  evolutionInstance: string,
+  remoteJid: string,
   messageId: string
 ): Promise<void> {
   if (!messageId) return;
   try {
-    await fetch(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, {
+    await fetch(`${evolutionApiUrl}/chat/markMessageAsRead/${evolutionInstance}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${metaToken}` },
+      headers: { "Content-Type": "application/json", apikey: evolutionApiKey },
       body: JSON.stringify({
-        messaging_product: "whatsapp",
-        status: "read",
-        message_id: messageId,
-        typing_indicator: { type: "text" }
+        readMessages: [{ remoteJid, id: messageId, fromMe: false }]
       })
     });
   } catch (e) {
     console.error("markReadWithTyping falhou (ignorado):", e);
+  }
+}
+
+/**
+ * Baixa o base64 de uma midia recebida (foto de prato/corpo) -- a Evolution
+ * nao manda o base64 embutido no payload do webhook por padrao (payload fica
+ * gigante), entao busca sob demanda usando a key da mensagem original.
+ */
+export async function getMediaBase64(
+  evolutionApiUrl: string,
+  evolutionApiKey: string,
+  evolutionInstance: string,
+  messageKey: { remoteJid: string; id: string; fromMe: boolean }
+): Promise<string | null> {
+  try {
+    const res = await fetch(`${evolutionApiUrl}/chat/getBase64FromMediaMessage/${evolutionInstance}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: evolutionApiKey },
+      body: JSON.stringify({ message: { key: messageKey }, convertToMp4: false })
+    });
+    if (!res.ok) {
+      console.error("getMediaBase64 falhou:", res.status, await res.text());
+      return null;
+    }
+    const json = await res.json();
+    return json.base64 || null;
+  } catch (e) {
+    console.error("getMediaBase64 erro:", e);
+    return null;
   }
 }
 

@@ -1,56 +1,73 @@
 /**
  * Windmill Script 1: Extract Payload
- * 
- * Este script deve ser o primeiro passo do Flow.
- * Ele pega o JSON gigante que a Meta envia e extrai apenas o suco.
- * 
+ *
+ * Primeiro passo do Flow. Pega o payload que a Evolution API manda no
+ * webhook (evento MESSAGES_UPSERT) e extrai só o suco -- mesmo formato de
+ * saida de antes (quando era Meta Cloud API), pra nao precisar mexer no
+ * resto do Flow nem nos scripts seguintes.
+ *
+ * Como o menu virou texto numerado (Evolution/WhatsApp pessoal nao suporta
+ * bem os botoes/listas da Meta Business API), esse script tambem converte
+ * respostas tipo "1", "2", "3" em `interactive_id` -- o significado de cada
+ * numero e resolvido pelo 4_Send_Interactive_Menu.ts, que guarda o contexto
+ * do ultimo menu mandado em whatsapp_sessions.temp_data.
+ *
  * CONFIGURAÇÃO NO WINDMILL:
- * - Crie um Flow.
- * - Defina o trigger como "Webhook" (Background execution ativada).
- * - Adicione este script como o primeiro passo.
- * - Input: `payload` (tipo `object`) mapeado a partir do body do Webhook.
+ * - Flow com trigger Webhook (Background execution ativada).
+ * - Este script como primeiro passo.
+ * - Input: `payload` (tipo `object`) = flow_input inteiro (o corpo cru que a
+ *   Evolution manda pro webhook do Flow).
  */
 
 export async function main(payload: any) {
-  // Se não for evento do WhatsApp, ignorar
-  if (payload?.object !== "whatsapp_business_account") {
-    return { is_valid_message: false, reason: "Not a whatsapp event" };
+  // A Evolution manda varios tipos de evento no mesmo webhook -- só interessa
+  // mensagem nova.
+  if (payload?.event !== "messages.upsert") {
+    return { is_valid_message: false, reason: "Not a messages.upsert event" };
   }
 
-  const entry = payload.entry?.[0];
-  const changes = entry?.changes?.[0];
-  const value = changes?.value;
-  const messages = value?.messages;
-  const statuses = value?.statuses;
+  const data = payload.data;
+  const key = data?.key;
 
-  // Ignorar atualizações de status (lido, entregue, etc)
-  if (!messages || !messages[0]) {
-    if (statuses && statuses[0]?.status === "failed") {
-      console.error("[META] Erro de entrega:", JSON.stringify(statuses[0].errors));
-    }
-    return { is_valid_message: false, reason: "Status update, not a message" };
+  // Mensagens que o proprio bot mandou tambem passam pelo webhook (eco) -- ignora.
+  if (!key || key.fromMe) {
+    return { is_valid_message: false, reason: "fromMe or missing key" };
   }
 
-  const msg = messages[0];
-  const remote_jid = msg.from;
-  const is_image = msg.type === "image";
-  const message_id = msg.image?.id || msg.id;
-  const media_id = is_image ? msg.image?.id : null;
+  const message = data.message || {};
+  const messageType = data.messageType || Object.keys(message)[0] || "";
+
+  const is_image = messageType === "imageMessage" || !!message.imageMessage;
 
   let text_message = "";
-  let interactive_id = "";
-
-  if (msg.type === "text") text_message = msg.text?.body || "";
-  if (msg.type === "button") text_message = msg.button?.text || "";
-  
-  // Extrair cliques em botões e listas interativas
-  if (msg.type === "interactive") {
-    interactive_id = msg.interactive?.button_reply?.id || msg.interactive?.list_reply?.id || "";
-    text_message = msg.interactive?.button_reply?.title || msg.interactive?.list_reply?.title || "";
+  if (typeof message.conversation === "string") {
+    text_message = message.conversation;
+  } else if (message.extendedTextMessage?.text) {
+    text_message = message.extendedTextMessage.text;
+  } else if (is_image && message.imageMessage?.caption) {
+    text_message = message.imageMessage.caption;
   }
 
-  // Remove tudo que não é número para obter o telefone puro
-  const sender_number = remote_jid.replace(/\D/g, "");
+  const remote_jid = key.remoteJid as string;
+  const message_id = key.id as string;
+  // media_id aqui e o proprio message_id -- a Evolution nao tem um ID de
+  // midia separado como a Meta tinha, busca a midia pela key da mensagem.
+  const media_id = is_image ? message_id : null;
+
+  // Cliques do menu antigo (botao/lista Meta) nao existem mais -- respostas
+  // numericas (1, 2, 3...) sao convertidas pro mesmo `interactive_id` que o
+  // resto do fluxo ja espera receber. O 4_Send_Interactive_Menu.ts decide o
+  // significado de cada numero pelo contexto (menu principal vs "mais opções"
+  // vs pergunta de meta), entao aqui so repassa o numero cru quando for texto
+  // curto e puramente numerico -- quem resolve o significado é o proprio
+  // script do menu, olhando pro numero.
+  let interactive_id = "";
+  const trimmed = text_message.trim();
+  if (/^[1-9]$/.test(trimmed)) {
+    interactive_id = `menu_option_${trimmed}`;
+  }
+
+  const sender_number = remote_jid.replace(/\D/g, "").replace(/@.*/, "");
 
   console.log(`[EXTRACT] sender=${sender_number}, isImage=${is_image}, text="${text_message}", id="${interactive_id}"`);
 
