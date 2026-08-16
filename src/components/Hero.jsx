@@ -60,11 +60,6 @@ export default function Hero() {
 
           <div>
             <div className="hero-photo">
-              <div className="hero-viora-float-badge">
-                <span className="badge-icon">✓</span>
-                <span className="badge-text">Metabolismo Otimizado por IA</span>
-              </div>
-
               <img src="/renascer/jean-hero.jpg" alt="Jean - Fitness & Wellness e Terapeuta" />
 
               <div className="hero-photo__caption">
