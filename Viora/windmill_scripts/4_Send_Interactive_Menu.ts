@@ -32,20 +32,54 @@ export async function main(remote_jid: string, interactive_id?: string) {
   let firstName = "";
   let userGoal: string | null = null;
   let trainingLocation: string | null = null;
+  let userEmail: string | null = null;
   try {
       const cands = generatePhoneCandidates(remote_jid.replace(/\D/g, ""));
       for (const c of cands) {
-          const { data } = await supabase.from("profiles").select("id, full_name, goal, training_location").eq("phone", c).maybeSingle();
+          const { data } = await supabase.from("profiles").select("id, full_name, goal, training_location, email").eq("phone", c).maybeSingle();
           if (data) {
               uid = data.id;
               firstName = (data.full_name || "").trim().split(/\s+/)[0] || "";
               userGoal = data.goal || null;
               trainingLocation = data.training_location || null;
+              userEmail = data.email || null;
               break;
           }
       }
   } catch (e) {
       console.error("Busca de perfil falhou:", e);
+  }
+
+  // Link mágico pro painel (jeanspagolla.com.br/painel) -- quem clica no
+  // WhatsApp nunca logou no navegador, então um link estático deixava a
+  // pessoa caindo deslogada. O admin.generateLink usa a service role key
+  // (já disponível aqui) pra criar uma sessão válida direto no clique.
+  // O link real do GoTrue é longo/feio pra mandar no WhatsApp -- grava
+  // num relay curto (link_redirects) e manda só o slug.
+  async function buildPainelLink(): Promise<string> {
+      const fallback = "https://www.jeanspagolla.com.br/painel";
+      if (!userEmail) return fallback;
+      try {
+          const { data, error } = await supabase.auth.admin.generateLink({
+              type: "magiclink",
+              email: userEmail,
+              options: { redirectTo: fallback },
+          });
+          if (error || !data?.properties?.action_link) {
+              console.error("Falha ao gerar magic link:", error);
+              return fallback;
+          }
+          const slug = Math.random().toString(36).slice(2, 10);
+          const { error: relayErr } = await supabase.from("link_redirects").insert({ slug, target_url: data.properties.action_link });
+          if (relayErr) {
+              console.error("Falha ao gravar relay de link:", relayErr);
+              return data.properties.action_link;
+          }
+          return `https://www.jeanspagolla.com.br/api/r/${slug}`;
+      } catch (e) {
+          console.error("Exceção ao gerar magic link:", e);
+          return fallback;
+      }
   }
 
   // Balanço de hoje + streak de dias consecutivos (calculado do food_analyses)
@@ -152,7 +186,7 @@ export async function main(remote_jid: string, interactive_id?: string) {
 
       // Resposta da pergunta de local de treino (loc_casa | loc_academia):
       // grava no perfil e segue direto pro pedido da foto (não volta pro menu).
-      if (interactive_id.startsWith("loc_")) {
+      if (interactive_id?.startsWith("loc_")) {
           const chosenLocation = interactive_id.slice(4);
           if (uid && ["casa", "academia"].includes(chosenLocation)) {
               const { error: locErr } = await supabase.from("profiles").update({ training_location: chosenLocation }).eq("id", uid);
@@ -216,7 +250,8 @@ export async function main(remote_jid: string, interactive_id?: string) {
       }
 
       if (interactive_id === "action_dashboard") {
-          await sendWhatsAppMessage(`📱  *MEU PAINEL*\n\n${DIVIDER}\n\nHistórico de refeições, evolução física, PDFs dos seus planos e gestão da assinatura:\n\n👉 https://app.jeanspagolla.com.br/dashboard`);
+          const painelLink = await buildPainelLink();
+          await sendWhatsAppMessage(`📱  *MEU PAINEL*\n\n${DIVIDER}\n\nSeu plano, pagamentos, PDFs e o acesso ao Viora, tudo num só lugar:\n\n👉 ${painelLink}\n\n_Esse link já abre logado e expira em alguns minutos._`);
           return { success: true, handled_click: true };
       }
 
