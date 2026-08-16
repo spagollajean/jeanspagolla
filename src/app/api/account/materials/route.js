@@ -43,13 +43,19 @@ export async function GET(req) {
       return NextResponse.json({ error: 'Sessão inválida' }, { status: 401 });
     }
 
-    const { data: entitlement, error: entError } = await supabaseAdmin.rpc(
-      'get_active_entitlement',
-      { p_user_id: user.id }
-    );
-    if (entError) throw entError;
+    // Os PDFs são liberados pra QUALQUER plano ativo (Essencial ou Completo)
+    // -- get_active_entitlement só olha pro 'completo' (usado pro Viora),
+    // por isso a checagem aqui é direto na tabela de assinaturas.
+    const { data: subscription } = await supabaseAdmin
+      .from('subscriptions')
+      .select('status, valid_until')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
-    const isActive = !!(entitlement && entitlement.length > 0);
+    const isActive = !!subscription &&
+      subscription.status === 'active' &&
+      (!subscription.valid_until || new Date(subscription.valid_until) > new Date());
+
     if (!isActive) {
       return NextResponse.json({ error: 'Assinatura inativa' }, { status: 403 });
     }
