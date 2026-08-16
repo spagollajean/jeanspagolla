@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Logo from './Logo';
 
 export default function Header() {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -25,10 +26,7 @@ export default function Header() {
 
       <header className="site-header">
         <div className="wrap">
-          <a href="#hero" className="logo">
-            Ren<em>ascer</em>
-            <span className="viora-badge-logo">Viora AI</span>
-          </a>
+          <Logo href="#hero" withBadge />
           
           <nav className="header-actions">
             <a href="#viora" className="header-nav-link">Ecossistema Viora</a>

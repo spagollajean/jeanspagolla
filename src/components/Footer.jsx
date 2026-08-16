@@ -1,10 +1,10 @@
+import Logo from './Logo';
+
 export default function Footer() {
   return (
     <footer className="site-footer">
       <div className="wrap">
-        <div className="logo" style={{ justifyContent: 'center', marginBottom: '1rem' }}>
-          Ren<em>ascer</em> <span className="viora-badge-logo">Viora AI</span>
-        </div>
+        <Logo withBadge style={{ justifyContent: 'center', marginBottom: '1rem' }} />
         <p>© {new Date().getFullYear()} Protocolo Renascer & Viora Health Technologies. Todos os direitos reservados.</p>
         <p style={{ fontSize: '0.75rem', marginTop: '0.5rem', color: 'var(--bone-faint)' }}>
           Este produto não substitui o parecer médico profissional. Sempre consulte um médico para questões de saúde.

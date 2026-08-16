@@ -260,7 +260,7 @@ ul { list-style: none; padding: 0; margin: 0; }
   padding-bottom: 0.85rem;
 }
 
-.logo {
+.brand-logo {
   font-family: var(--font-serif);
   font-weight: 600;
   font-size: 1.25rem;
@@ -270,7 +270,10 @@ ul { list-style: none; padding: 0; margin: 0; }
   gap: 0.5rem;
 }
 
-.logo em {
+/* .brand-logo__word agrupa "Ren" + "ascer" num único inline box -- sem isso,
+   o gap do flex acima entra ENTRE o texto solto "Ren" e o <em>, abrindo um
+   espaço indevido ("Ren ascer" em vez de "Renascer"). */
+.brand-logo__word em {
   font-style: italic;
   color: var(--ochre-bright);
 }
@@ -1114,8 +1117,7 @@ section { position: relative; }
 .checkout-summary { background: var(--dark-1); padding: clamp(1.8rem, 4vw, 2.6rem); display: flex; flex-direction: column; justify-content: space-between; }
 .checkout-form-col { background: var(--dark-0); padding: clamp(1.8rem, 4vw, 2.6rem); display: flex; flex-direction: column; justify-content: center; min-height: 460px; }
 
-.checkout-logo { font-family: var(--font-serif); font-weight: 600; font-size: 1.2rem; color: var(--bone); display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.6rem; }
-.checkout-logo em { font-style: italic; color: var(--ochre-bright); }
+.checkout-logo { margin-bottom: 1.6rem; }
 
 .checkout-plan-toggle { display: flex; gap: 0.5rem; background: var(--dark-2); border: 1px solid var(--line-dark); border-radius: var(--radius); padding: 0.3rem; }
 .checkout-plan-toggle__btn {

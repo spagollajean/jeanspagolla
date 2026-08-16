@@ -6,6 +6,7 @@ import { normalizePhone } from '@/lib/phone';
 import { fbq, trackPurchase } from '@/lib/fbpixel';
 import { gtag, gaPurchase } from '@/lib/ga';
 import StripeCheckout from '@/components/StripeCheckout';
+import Logo from '@/components/Logo';
 import {
   ShieldCheck, Lock, Loader2, CheckCircle2, ArrowRight,
   Mail, Eye, EyeOff, MessageCircle, LogOut, User as UserIcon,
@@ -330,7 +331,7 @@ export default function CheckoutPage() {
         {/* ── LEFT: Plan Summary ───────────────────────────────────────── */}
         <div className="checkout-summary">
           <div>
-            <div className="checkout-logo">Renascer</div>
+            <Logo className="checkout-logo" />
 
             {step !== 'already-subscribed' && (
               <div className="checkout-plan-toggle">

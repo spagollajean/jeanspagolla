@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import Logo from '@/components/Logo';
 import {
   Loader2, Mail, Lock, Eye, EyeOff, LogOut, ArrowRight,
   FileText, Download, CreditCard, AlertTriangle, ExternalLink, CheckCircle2,
@@ -136,7 +137,7 @@ export default function PainelPage() {
       <div className="checkout-page">
         <div className="checkout-card">
           <div className="checkout-form-col" style={{ gridColumn: '1 / -1', maxWidth: 420, margin: '0 auto' }}>
-            <div className="checkout-logo">Ren<em>ascer</em></div>
+            <Logo className="checkout-logo" />
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', color: 'var(--bone)', marginBottom: '0.4rem' }}>
               Minha Área
             </h1>
@@ -189,7 +190,7 @@ export default function PainelPage() {
       <div className="checkout-card" style={{ gridTemplateColumns: '1fr' }}>
         <div className="checkout-form-col" style={{ minHeight: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.6rem' }}>
-            <div className="checkout-logo" style={{ marginBottom: 0 }}>Ren<em>ascer</em></div>
+            <Logo className="checkout-logo" style={{ marginBottom: 0 }} />
             <button onClick={handleLogout} className="checkout-toggle-eye" style={{ position: 'static', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--bone-faint)' }}>
               <LogOut size={16} /> Sair
             </button>
