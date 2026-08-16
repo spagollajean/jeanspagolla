@@ -239,18 +239,27 @@ export default function PainelPage() {
                 </button>
               )}
 
-              {account.plan && !account.discordConnected && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!session?.access_token) return;
-                    window.location.href = `/api/auth/discord/start?token=${encodeURIComponent(session.access_token)}`;
-                  }}
-                  className="btn btn--outline btn--block"
-                  style={{ width: '100%', justifyContent: 'center', marginTop: '0.8rem' }}
-                >
-                  Conectar Discord (comunidade)
-                </button>
+              {account.plan && (
+                account.discordConnected ? (
+                  <div className="checkout-price-row" style={{ marginTop: '0.8rem', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--bone-soft)', fontSize: '0.85rem' }}>Discord (comunidade)</span>
+                    <span style={{ color: 'var(--viora-emerald)', fontSize: '0.78rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <CheckCircle2 size={14} /> Conectado
+                    </span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!session?.access_token) return;
+                      window.location.href = `/api/auth/discord/start?token=${encodeURIComponent(session.access_token)}`;
+                    }}
+                    className="btn btn--outline btn--block"
+                    style={{ width: '100%', justifyContent: 'center', marginTop: '0.8rem' }}
+                  >
+                    Discord (comunidade) — Desconectado, clique para conectar
+                  </button>
+                )
               )}
 
               {!account.plan && (
