@@ -92,6 +92,15 @@ export default function CheckoutPage() {
       .eq('id', userId)
       .maybeSingle();
 
+    // Sessão órfã: o token local ainda é válido mas a conta foi removida no
+    // servidor (ex: limpeza de teste). Sem isso, a tela ficava presa com
+    // dados em branco ("Usuário", telefone vazio) em vez de voltar pro login.
+    if (!profile) {
+      await supabase.auth.signOut();
+      setUser(null);
+      return null;
+    }
+
     const sub = profile?.subscriptions;
     const entitlement = Array.isArray(sub) ? sub[0] : sub;
     const isActive = !!entitlement &&
@@ -122,6 +131,11 @@ export default function CheckoutPage() {
       if (!mounted) return;
       if (session?.user) {
         const userData = await fetchProfile(session.user.id, session.user.email);
+        if (!userData) {
+          setStep('account');
+          if (mounted) setAuthLoading(false);
+          return;
+        }
         if (userData.plan === 'completo' || userData.plan === 'essencial') {
           setStep('already-subscribed');
           if (mounted) setAuthLoading(false);
@@ -268,6 +282,7 @@ export default function CheckoutPage() {
       if (!data.user || !data.session) throw new Error('Erro ao fazer login. Tente novamente.');
 
       const userData = await fetchProfile(data.user.id, data.user.email);
+      if (!userData) throw new Error('Não foi possível carregar sua conta. Tente novamente.');
       if (userData.plan === 'completo' || userData.plan === 'essencial') {
         setStep('already-subscribed');
         return;
