@@ -8,8 +8,10 @@ const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 
-// Troca o "code" do OAuth por um access token, e retorna o usuario logado
-// (so precisamos do ID -- e o que a gente grava em profiles.discord_user_id).
+// Troca o "code" do OAuth por um access token, e retorna o usuario logado +
+// o proprio access_token (precisamos dele pra adicionar a pessoa no
+// servidor via addMemberToGuild -- guilds.join exige o token DELA, o bot
+// token sozinho nao basta).
 export async function exchangeCodeForDiscordUser(code) {
   const tokenRes = await fetch(`${API}/oauth2/token`, {
     method: 'POST',
@@ -33,32 +35,54 @@ export async function exchangeCodeForDiscordUser(code) {
   if (!userRes.ok) {
     throw new Error(`Discord /users/@me falhou: ${await userRes.text()}`);
   }
-  return userRes.json();
+  const user = await userRes.json();
+  return { ...user, _oauthAccessToken: access_token };
 }
 
-// Da o cargo "Assinante" -- chamado quando o pagamento e aprovado (webhook)
-// ou quando a pessoa conecta o Discord depois de ja ter pago.
+// Adiciona a pessoa DIRETO no servidor (sem link de convite público) e já
+// atribui o cargo de assinante se ela tiver pagamento ativo. Precisa do
+// access_token OAuth dela (escopo guilds.join) + do bot token. Chamado no
+// callback de conexão -- é o único momento em que temos o token dela.
+export async function addMemberToGuild(discordUserId, userAccessToken, grantRole) {
+  const res = await fetch(`${API}/guilds/${GUILD_ID}/members/${discordUserId}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      access_token: userAccessToken,
+      roles: grantRole ? [ROLE_ID] : [],
+    }),
+  });
+  // 201 = entrou agora | 204 = já era membro (token só atualizado)
+  if (!res.ok && res.status !== 201 && res.status !== 204) {
+    console.error('Discord addMemberToGuild falhou:', res.status, await res.text());
+  }
+  return res.status;
+}
+
+// Da o cargo "Assinante" pra quem ja esta no servidor -- usado na renovacao
+// (o webhook so tem o discord_user_id salvo, nao um OAuth token novo pra
+// re-adicionar via addMemberToGuild).
 export async function grantSubscriberRole(discordUserId) {
   const res = await fetch(`${API}/guilds/${GUILD_ID}/members/${discordUserId}/roles/${ROLE_ID}`, {
     method: 'PUT',
     headers: { Authorization: `Bot ${BOT_TOKEN}` },
   });
-  // 404 = pessoa nao entrou no servidor ainda (precisa entrar pelo convite
-  // antes do bot conseguir dar o cargo) -- nao trata como erro fatal.
   if (!res.ok && res.status !== 404) {
     console.error('Discord grantSubscriberRole falhou:', res.status, await res.text());
   }
   return res.status;
 }
 
-// Tira o cargo -- chamado quando a assinatura cancela/expira.
-export async function revokeSubscriberRole(discordUserId) {
-  const res = await fetch(`${API}/guilds/${GUILD_ID}/members/${discordUserId}/roles/${ROLE_ID}`, {
+// Remove a pessoa DO SERVIDOR (nao so o cargo) -- chamado quando a
+// assinatura cancela/expira de verdade. Servidor exclusivo: sem
+// assinatura ativa, sem acesso nenhum ao servidor.
+export async function removeMemberFromGuild(discordUserId) {
+  const res = await fetch(`${API}/guilds/${GUILD_ID}/members/${discordUserId}`, {
     method: 'DELETE',
     headers: { Authorization: `Bot ${BOT_TOKEN}` },
   });
   if (!res.ok && res.status !== 404) {
-    console.error('Discord revokeSubscriberRole falhou:', res.status, await res.text());
+    console.error('Discord removeMemberFromGuild falhou:', res.status, await res.text());
   }
   return res.status;
 }
@@ -66,8 +90,10 @@ export async function revokeSubscriberRole(discordUserId) {
 // `state` carrega o access_token do Supabase de quem está conectando --
 // é como o callback sabe pra qual conta gravar o discord_user_id (esse
 // endpoint não tem sessão/cookie ambiente, só o que vier no state).
+// guilds.join é o que permite adicionar a pessoa direto no servidor, sem
+// convite público.
 export function buildDiscordOAuthUrl(state) {
   return `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&response_type=code` +
-    `&redirect_uri=${encodeURIComponent(REDIRECT_URI || '')}&scope=identify` +
+    `&redirect_uri=${encodeURIComponent(REDIRECT_URI || '')}&scope=${encodeURIComponent('identify guilds.join')}` +
     `&state=${encodeURIComponent(state)}`;
 }

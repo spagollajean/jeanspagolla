@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { stripe, PLANS, planFromPriceId } from '@/lib/stripe';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { notifyEmail } from '@/lib/notify-email';
-import { grantSubscriberRole, revokeSubscriberRole } from '@/lib/discord';
+import { grantSubscriberRole, removeMemberFromGuild } from '@/lib/discord';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -192,10 +192,11 @@ export async function POST(req) {
             .eq('stripe_subscription_id', sub.id);
         }
 
-        // O cargo do Discord e estatico (nao reavalia sozinho tipo o Viora
-        // faz por valid_until) -- revoga sempre que a assinatura e deletada
-        // de verdade na Stripe, independente de ter sido cancelamento do
-        // usuario (cancel_at_period_end) ou "de fora".
+        // Servidor exclusivo: sem convite público, então "revogar acesso"
+        // aqui significa remover a pessoa do servidor de verdade, não só
+        // tirar um cargo. Roda sempre que a assinatura é deletada de
+        // verdade na Stripe, independente de ter sido cancelamento do
+        // usuário (cancel_at_period_end) ou "de fora".
         if (row?.user_id) {
           const { data: profile } = await supabaseAdmin
             .from('profiles')
@@ -203,7 +204,7 @@ export async function POST(req) {
             .eq('id', row.user_id)
             .maybeSingle();
           if (profile?.discord_user_id) {
-            await revokeSubscriberRole(profile.discord_user_id);
+            await removeMemberFromGuild(profile.discord_user_id);
           }
         }
         break;

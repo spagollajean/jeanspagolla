@@ -5,7 +5,10 @@ import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Loader2, CheckCircle2, AlertTriangle } from 'lucide-react';
 
-const DISCORD_INVITE_URL = 'https://discord.gg/wDMScm5Zpg';
+// Servidor exclusivo (sem convite público): a pessoa já foi adicionada
+// direto pelo callback do OAuth, então isso é só um atalho pra abrir o
+// servidor onde ela já está -- não um link de convite.
+const DISCORD_SERVER_URL = 'https://discord.com/channels/1536093719227531286';
 const VIORA_APP_URL = process.env.NEXT_PUBLIC_VIORA_APP_URL || 'https://app.jeanspagolla.com.br';
 
 function DiscordConnectInner() {
@@ -58,10 +61,10 @@ function DiscordConnectInner() {
             <CheckCircle2 size={40} style={{ color: 'var(--viora-emerald)', margin: '0 auto 1rem' }} />
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', color: 'var(--bone)' }}>Discord conectado!</h1>
             <p style={{ color: 'var(--bone-soft)', fontSize: '0.92rem', marginTop: '0.6rem' }}>
-              Seu acesso à comunidade já está liberado. Entra no servidor:
+              Você já foi adicionado ao servidor automaticamente — não precisa de convite.
             </p>
-            <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer" className="btn btn--viora btn--block" style={{ marginTop: '1.4rem' }}>
-              Entrar no Discord
+            <a href={DISCORD_SERVER_URL} target="_blank" rel="noopener noreferrer" className="btn btn--viora btn--block" style={{ marginTop: '1.4rem' }}>
+              Abrir o servidor
             </a>
             {goToViora && (
               <button type="button" onClick={handleOpenViora} className="btn btn--outline btn--block" style={{ marginTop: '0.8rem' }}>
