@@ -12,8 +12,6 @@ import {
   Mail, Eye, EyeOff, MessageCircle, LogOut, User as UserIcon,
 } from 'lucide-react';
 
-const VIORA_APP_URL = process.env.NEXT_PUBLIC_VIORA_APP_URL || 'https://app.jeanspagolla.com.br';
-
 const PLAN_INFO = {
   essencial: {
     key: 'essencial',
@@ -124,11 +122,7 @@ export default function CheckoutPage() {
       if (!mounted) return;
       if (session?.user) {
         const userData = await fetchProfile(session.user.id, session.user.email);
-        if (userData.plan === 'completo') {
-          window.location.href = `${VIORA_APP_URL}/dashboard`;
-          return;
-        }
-        if (userData.plan === 'essencial') {
+        if (userData.plan === 'completo' || userData.plan === 'essencial') {
           setStep('already-subscribed');
           if (mounted) setAuthLoading(false);
           return;
@@ -274,11 +268,7 @@ export default function CheckoutPage() {
       if (!data.user || !data.session) throw new Error('Erro ao fazer login. Tente novamente.');
 
       const userData = await fetchProfile(data.user.id, data.user.email);
-      if (userData.plan === 'completo') {
-        window.location.href = `${VIORA_APP_URL}/dashboard`;
-        return;
-      }
-      if (userData.plan === 'essencial') {
+      if (userData.plan === 'completo' || userData.plan === 'essencial') {
         setStep('already-subscribed');
         return;
       }
@@ -383,18 +373,32 @@ export default function CheckoutPage() {
           {step === 'already-subscribed' ? (
             <div style={{ textAlign: 'center' }}>
               <CheckCircle2 size={40} style={{ color: 'var(--viora-emerald)', margin: '0 auto 1rem' }} />
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', color: 'var(--bone)' }}>Você já é aluno do Renascer Essencial</h2>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', color: 'var(--bone)' }}>
+                Você já é aluno do Renascer {user?.plan === 'completo' ? 'Completo' : 'Essencial'}
+              </h2>
               <p style={{ color: 'var(--bone-soft)', fontSize: '0.9rem', marginTop: '0.6rem' }}>
-                Sua assinatura está ativa. Quer destravar o Viola AI no WhatsApp com o plano Completo?
+                {user?.plan === 'completo'
+                  ? 'Sua assinatura está ativa, com o Viora incluso. Gerencie tudo na sua área.'
+                  : 'Sua assinatura está ativa. Quer destravar o Viora AI no WhatsApp com o plano Completo?'}
               </p>
-              <button
-                type="button"
-                onClick={() => { setSelectedPlan('completo'); setStep('account'); }}
-                className="btn btn--viora btn--block"
-                style={{ marginTop: '1.4rem' }}
-              >
-                Fazer upgrade para o Completo <ArrowRight size={16} />
-              </button>
+              {user?.plan === 'completo' ? (
+                <a
+                  href="/painel"
+                  className="btn btn--viora btn--block"
+                  style={{ marginTop: '1.4rem' }}
+                >
+                  Ir para Minha Área <ArrowRight size={16} />
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => { setSelectedPlan('completo'); setStep('account'); }}
+                  className="btn btn--viora btn--block"
+                  style={{ marginTop: '1.4rem' }}
+                >
+                  Fazer upgrade para o Completo <ArrowRight size={16} />
+                </button>
+              )}
             </div>
           ) : step === 'account' ? (
             <form onSubmit={handleFormSubmit}>
