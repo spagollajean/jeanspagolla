@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Logo from './Logo';
+import { supabase } from '@/lib/supabase';
 
 export default function Header() {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +18,12 @@ export default function Header() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setLoggedIn(!!session));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => setLoggedIn(!!session));
+    return () => listener.subscription.unsubscribe();
   }, []);
 
   return (
@@ -32,8 +40,14 @@ export default function Header() {
             <a href="#viora" className="header-nav-link">Ecossistema Viora</a>
             <a href="#quiz" className="header-nav-link">Faça o Teste</a>
             <a href="#metodo" className="header-nav-link">O Método</a>
-            <a href="/painel" className="header-nav-link">Minha Área</a>
-            <a href="#oferta" className="header-cta">Quero Renascer</a>
+            {loggedIn ? (
+              <a href="/painel" className="header-cta">Meu Painel</a>
+            ) : (
+              <>
+                <a href="/painel" className="header-nav-link">Minha Área</a>
+                <a href="#oferta" className="header-cta">Quero Renascer</a>
+              </>
+            )}
           </nav>
         </div>
       </header>

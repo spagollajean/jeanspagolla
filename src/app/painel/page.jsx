@@ -239,6 +239,20 @@ export default function PainelPage() {
                 </button>
               )}
 
+              {account.plan && !account.discordConnected && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!session?.access_token) return;
+                    window.location.href = `/api/auth/discord/start?token=${encodeURIComponent(session.access_token)}`;
+                  }}
+                  className="btn btn--outline btn--block"
+                  style={{ width: '100%', justifyContent: 'center', marginTop: '0.8rem' }}
+                >
+                  Conectar Discord (comunidade)
+                </button>
+              )}
+
               {!account.plan && (
                 <a href="/checkout" className="header-cta" style={{ width: '100%', justifyContent: 'center', marginTop: '1rem' }}>
                   Assinar o Renascer <ArrowRight size={16} />

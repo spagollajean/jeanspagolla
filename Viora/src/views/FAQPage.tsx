@@ -109,7 +109,7 @@ const FAQPage: React.FC<FAQPageProps> = ({ onBack }) => {
                 {/* Contact CTA */}
                 <div className="mt-16 text-center">
                     <p className="text-gray-600 mb-4">Ainda tem dúvidas?</p>
-                    <a href="https://wa.me/5541999999999" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-brand-600 font-bold hover:underline">
+                    <a href="https://wa.me/554188386283" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-brand-600 font-bold hover:underline">
                         Fale com nosso suporte no WhatsApp <ChevronUp className="rotate-90" size={16} />
                     </a>
                 </div>

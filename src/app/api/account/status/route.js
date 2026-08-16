@@ -23,7 +23,7 @@ export async function GET(req) {
 
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('full_name, email, phone')
+      .select('full_name, email, phone, discord_user_id')
       .eq('id', user.id)
       .maybeSingle();
 
@@ -53,6 +53,7 @@ export async function GET(req) {
       status: subscription?.status || 'none',
       validUntil: subscription?.valid_until || null,
       cancelAtPeriodEnd: !!subscription?.cancel_at_period_end,
+      discordConnected: !!profile?.discord_user_id,
       payments: payments || [],
     });
   } catch (error) {

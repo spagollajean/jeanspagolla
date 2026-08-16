@@ -167,7 +167,7 @@ export default function DashboardSubscription({ user }: { user: any }) {
               type="text"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="Ex: +5541988049221"
+              placeholder="Ex: +554188386283"
               required
               className="w-full bg-gray-50/50 border border-gray-200 focus:border-brand-500 text-gray-800 rounded-lg px-4 py-3 text-sm outline-none transition-colors"
             />

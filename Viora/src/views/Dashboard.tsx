@@ -113,9 +113,9 @@ export default function Dashboard({
                  loadingHistory={loadingHistory}
                  planName={user?.plan === 'pro' ? 'PRO' : 'STARTER'}
                  t={t}
-                 whatsappUrl="https://wa.me/5541988049221?text=Oi"
-                 qrCodeUrl="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/5541988049221"
-                 whatsappNumber="+55 41 98804-9221"
+                 whatsappUrl="https://wa.me/554188386283?text=Oi"
+                 qrCodeUrl="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/554188386283"
+                 whatsappNumber="+55 41 8838-6283"
                  setActiveTab={setActiveTab}
                  fallbackImage="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
                />;
@@ -150,9 +150,9 @@ export default function Dashboard({
                  loadingHistory={loadingHistory}
                  planName={user?.plan === 'pro' ? 'PRO' : 'STARTER'}
                  t={t}
-                 whatsappUrl="https://wa.me/5541988049221?text=Oi"
-                 qrCodeUrl="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/5541988049221"
-                 whatsappNumber="+55 41 98804-9221"
+                 whatsappUrl="https://wa.me/554188386283?text=Oi"
+                 qrCodeUrl="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/554188386283"
+                 whatsappNumber="+55 41 8838-6283"
                  setActiveTab={setActiveTab}
                  fallbackImage="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
                />;
