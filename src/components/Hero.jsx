@@ -63,7 +63,7 @@ export default function Hero() {
               <img src="/renascer/jean-hero.jpg" alt="Jean - Fitness & Wellness e Terapeuta" />
 
               <div className="hero-photo__caption">
-                <span className="hero-photo__name">Jean Pagolla</span>
+                <span className="hero-photo__name">Jean Spagolla</span>
                 <span className="hero-photo__role">Fitness & Wellness e Terapeuta Integrativo</span>
               </div>
             </div>

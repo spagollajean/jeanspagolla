@@ -49,7 +49,10 @@ export async function POST(req) {
       // renovacao (so pra saber que texto mandar no e-mail).
       case 'invoice.paid': {
         const invoice = event.data.object;
-        const subscriptionId = invoice.subscription || null;
+        // A partir da API version 2026-07-29 a Stripe moveu isso pra dentro
+        // de "parent" -- invoice.subscription direto não existe mais.
+        // Mantém o fallback antigo por segurança contra API versions futuras/antigas.
+        const subscriptionId = invoice.subscription || invoice.parent?.subscription_details?.subscription || null;
         const customerId = invoice.customer;
 
         const { data: existingPayment } = await supabaseAdmin

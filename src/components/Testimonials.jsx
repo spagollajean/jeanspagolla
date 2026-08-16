@@ -65,11 +65,10 @@ export default function Testimonials() {
             <details className="testi-card" key={d.nome}>
               <summary>
                 <div className="testi-photos">
-                  <img src={d.antes} alt={`${d.nome} antes`} />
-                  <img src={d.depois} alt={`${d.nome} depois`} />
+                  <img src={d.antes} alt="Antes" />
+                  <img src={d.depois} alt="Depois" />
                 </div>
                 <div className="testi-info">
-                  <div className="testi-name">{d.nome}</div>
                   <div className="testi-meta">{d.meta}</div>
                   <div className="testi-toggle">
                     <span className="when-closed">ver depoimento</span>

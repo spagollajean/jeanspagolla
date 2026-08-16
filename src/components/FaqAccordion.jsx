@@ -17,7 +17,7 @@ const faqs = [
   },
   {
     q: 'Como funciona o acompanhamento com o Viora?',
-    a: 'Comunidade no Skool com acesso a mim, mais um APP direto no WhatsApp com a inteligência do Viora, que cobra sua rotina, fotos e evolução todos os dias no plano Completo.',
+    a: 'Comunidade no Discord com acesso a mim, mais um APP direto no WhatsApp com a inteligência do Viora, que cobra sua rotina, fotos e evolução todos os dias no plano Completo.',
   },
   {
     q: 'E se eu quiser cancelar?',

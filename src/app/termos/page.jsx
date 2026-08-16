@@ -21,7 +21,7 @@ export default function TermosPage() {
         Terapeuta), com dois planos:
       </p>
       <ul>
-        <li><strong>Renascer Essencial:</strong> aulas em vídeo, comunidade no Skool e aulas/desafios ao vivo.</li>
+        <li><strong>Renascer Essencial:</strong> aulas em vídeo, comunidade no Discord e aulas/desafios ao vivo.</li>
         <li><strong>Renascer Completo:</strong> tudo do Essencial, mais acesso ao Viora — um assistente de nutrição e treino com inteligência artificial, disponível pelo WhatsApp e por um painel web.</li>
       </ul>
       <p>

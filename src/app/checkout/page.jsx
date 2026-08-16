@@ -21,7 +21,7 @@ const PLAN_INFO = {
     tagline: 'Menos que uma única sessão avulsa de personal trainer.',
     features: [
       'Aulas em vídeo com todos os protocolos',
-      'Comunidade no Skool com acesso a mim',
+      'Comunidade no Discord com acesso a mim',
       'Desafios, palestras e aulas ao vivo',
     ],
   },
