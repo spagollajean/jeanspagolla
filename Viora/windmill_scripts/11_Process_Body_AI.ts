@@ -257,7 +257,7 @@ export async function main(
   if (user_id) {
       const { data } = await supabase
           .from("profiles")
-          .select("id, full_name, goal")
+          .select("id, full_name, goal, training_location")
           .eq("id", user_id)
           .maybeSingle();
       profile = data || { id: user_id };
@@ -266,7 +266,7 @@ export async function main(
       for (const candidate of phoneCandidates) {
           const { data } = await supabase
               .from("profiles")
-              .select("id, full_name, goal")
+              .select("id, full_name, goal, training_location")
               .eq("phone", candidate)
               .maybeSingle();
 
@@ -360,8 +360,30 @@ export async function main(
         ? `\n\nMETA DO USUÁRIO (obrigatório respeitar): ${GOAL_PROMPTS[profile.goal]}\nA análise da foto refina o plano (biótipo, pontos fracos), mas NÃO substitui a meta declarada.`
         : "";
 
+    // Local de treino: decide se o "workout" é HIIT com peso corporal (casa)
+    // ou treino de academia com equipamentos. Casa é o padrão (fail-safe)
+    // pra quem ainda não respondeu a pergunta no WhatsApp.
+    const isHome = profile.training_location !== "academia";
+    const workoutInstruction = isHome
+        ? `\n\nLOCAL DE TREINO: CASA — só peso corporal, sem equipamentos.
+Monte o treino como sessões de HIIT. Cada sessão ("day" em "routine") tem EXATAMENTE 4 exercícios e dura ~16 minutos (4 exercícios x 4 rodadas).
+Decida o nível (iniciante ou avançado) pela análise da foto (massa muscular, condicionamento aparente) e pelo "evolution_notes" se houver histórico:
+- INICIANTE: 30s de execução / 30s de descanso por exercício. Priorize movimentos simples e de baixo impacto (ex: agachamento, agachamento até uma cadeira, polichinelo adaptado, marcha rápida parada, mountain climber lento, flexão com joelhos apoiados, elevação de joelhos, ponte de glúteos, prancha adaptada). Evite saltos.
+- AVANÇADO: 45s de execução / 15s de descanso por exercício. Use movimentos mais intensos quando adequados (ex: burpee, agachamento com salto, mountain climber rápido, high knees, flexão, jumping jack, skater jump, lunge com salto, plank jack).
+Em "sets" coloque o número de rodadas (4). Em "reps" coloque o tempo no formato "30s exec / 30s descanso" (ou "45s exec / 15s descanso" no avançado). Em "technique" dê uma dica curta de execução do movimento.
+Se "frequency_days" for 3 ou mais, gere 3 variações diferentes (nomeie o "day" como "HIIT A", "HIIT B", "HIIT C") distribuindo os grupos musculares (pernas, glúteos, core, peitoral, ombros, cardio) entre elas — não repita a mesma combinação de exercícios.
+Se a pessoa está começando (sem histórico de avaliação anterior), priorize consistência: comece no nível iniciante mesmo que a foto sugira bom condicionamento, a menos que o "evolution_notes" mostre progresso claro de avaliações anteriores.`
+        : `\n\nLOCAL DE TREINO: ACADEMIA — pode usar equipamentos, halteres, máquinas e barras livremente.`;
+
+    const dietPhilosophy = `\n\nFILOSOFIA ALIMENTAR (obrigatório seguir): use como base o conceito da "Dieta da Selva" — alimentos simples e minimamente processados.
+Priorize nas sugestões de "meal_plan_example": carne bovina, frango, peixes, ovos, frutas (banana, abacate etc.), tubérculos e raízes quando adequados à meta, queijos, manteiga, óleo de coco, mel, cacau, café, sal, água.
+Uma opção de café da manhã pode ser "café + óleo de coco + cacau" quando fizer sentido pra meta do usuário.
+NÃO use como base habitual: ultraprocessados, refrigerantes, doces industrializados, margarina, óleos vegetais refinados, produtos com listas grandes de ingredientes, farinhas muito refinadas.
+A ideia central: comida de verdade, com ingredientes simples e reconhecíveis — não uma dieta restritiva ou monótona, apenas limpa.
+Ajuste as quantidades (calorias e macros) considerando peso, altura, sexo, idade, meta e frequência de treino do usuário — são pontos de partida, não valores fixos para todo mundo.`;
+
     const promptSystem = `Você é o "Titan Coach", um treinador olímpico de elite e nutricionista esportivo PhD.
-Sua missão é analisar a foto do físico de um usuário e criar um **Protocolo de Transformação** completo, rico e detalhado.${goalInstruction}
+Sua missão é analisar a foto do físico de um usuário e criar um **Protocolo de Transformação** completo, rico e detalhado.${goalInstruction}${workoutInstruction}${dietPhilosophy}
 
 Se a foto enviada NÃO contiver um corpo humano nítido ou se for impossível analisar o biótipo, defina "valid_body" como false.
 
@@ -452,7 +474,8 @@ Regras IMPORTANTES:
 6. O campo "technique" de cada exercício deve ser uma dica CURTA (máximo 6 palavras, ex: "Descida controlada 2s"). Se não houver dica relevante, omita o campo.
 7. Escreva TUDO em português do Brasil, usando apenas o alfabeto latino.
 8. Se a imagem não for um corpo analisável, retorne "valid_body": false.
-9. Se a mensagem do usuário incluir uma "Avaliação Anterior", USE esses dados para preencher "evolution_notes" com uma comparação real de progresso (não invente dados que não foram fornecidos).`;
+9. Se a mensagem do usuário incluir uma "Avaliação Anterior", USE esses dados para preencher "evolution_notes" com uma comparação real de progresso (não invente dados que não foram fornecidos).
+10. O exemplo de "routine" acima (com halteres/máquinas) é só ilustração de ESTRUTURA — siga a instrução de LOCAL DE TREINO acima pra decidir o conteúdo real dos exercícios (HIIT peso corporal em casa, ou equipamentos na academia).`;
 
     const openaiUrl = "https://api.openai.com/v1/chat/completions";
 

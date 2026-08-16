@@ -31,14 +31,16 @@ export async function main(remote_jid: string, interactive_id?: string) {
   let uid: string | null = null;
   let firstName = "";
   let userGoal: string | null = null;
+  let trainingLocation: string | null = null;
   try {
       const cands = generatePhoneCandidates(remote_jid.replace(/\D/g, ""));
       for (const c of cands) {
-          const { data } = await supabase.from("profiles").select("id, full_name, goal").eq("phone", c).maybeSingle();
+          const { data } = await supabase.from("profiles").select("id, full_name, goal, training_location").eq("phone", c).maybeSingle();
           if (data) {
               uid = data.id;
               firstName = (data.full_name || "").trim().split(/\s+/)[0] || "";
               userGoal = data.goal || null;
+              trainingLocation = data.training_location || null;
               break;
           }
       }
@@ -94,6 +96,16 @@ export async function main(remote_jid: string, interactive_id?: string) {
       );
   }
 
+  // Pergunta de local de treino (casa | academia) — decide se o Titan Coach
+  // monta HIIT com peso corporal ou treino de academia. Só perguntada antes
+  // da 1ª avaliação física; depois fica salva no perfil.
+  async function sendLocationQuestion() {
+      await setMenuContext("location");
+      await sendWhatsAppMessage(
+          `🏋️  *DIETA E TREINO*\n\n${DIVIDER}\n\nAntes de montar seu plano, me conta: *onde você vai treinar?*\n\n*1*  🏠  Em casa\n*2*  🏋️  Na academia\n\n${DIVIDER}\n\n_Responda só com o número._`
+      );
+  }
+
   // O menu agora e texto numerado, entao "1"/"2"/"3" significam coisas
   // diferentes dependendo de qual menu foi mandado por ultimo (principal,
   // "mais opções" ou pergunta de meta). Guarda esse contexto em
@@ -113,6 +125,7 @@ export async function main(remote_jid: string, interactive_id?: string) {
           main: { "1": "action_food", "2": "action_coach", "3": "action_more" },
           more: { "1": "action_summary", "2": "action_change_goal", "3": "action_dashboard", "4": "action_help" },
           goal: { "1": "goal_emagrecer", "2": "goal_ganhar_massa", "3": "goal_manter" },
+          location: { "1": "loc_casa", "2": "loc_academia" },
       };
       interactive_id = MAPS[ctx]?.[n];
   }
@@ -137,6 +150,21 @@ export async function main(remote_jid: string, interactive_id?: string) {
           interactive_id = undefined; // segue pro menu principal
       }
 
+      // Resposta da pergunta de local de treino (loc_casa | loc_academia):
+      // grava no perfil e segue direto pro pedido da foto (não volta pro menu).
+      if (interactive_id.startsWith("loc_")) {
+          const chosenLocation = interactive_id.slice(4);
+          if (uid && ["casa", "academia"].includes(chosenLocation)) {
+              const { error: locErr } = await supabase.from("profiles").update({ training_location: chosenLocation }).eq("id", uid);
+              if (locErr) console.error("Falha ao salvar local de treino:", locErr);
+              trainingLocation = chosenLocation;
+          }
+          await supabase.from("whatsapp_sessions").update({ state: "AWAITING_BODY_PHOTO" }).eq("phone_number", remote_jid.replace(/\D/g, ""));
+          const locLabel = chosenLocation === "casa" ? "treino em casa (peso corporal)" : "treino de academia";
+          await sendWhatsAppMessage(`✅ *Combinado, ${locLabel}.*\n\nAgora me manda uma *foto do seu corpo inteiro*, de frente, com roupa de treino — eu monto seu plano completo. 📸`);
+          return { success: true, handled_click: true, new_state: "AWAITING_BODY_PHOTO" };
+      }
+
       if (interactive_id === "action_food") {
           await supabase.from("whatsapp_sessions").update({ state: "IDLE" }).eq("phone_number", remote_jid.replace(/\D/g, ""));
           await sendWhatsAppMessage(`🥗  *AVALIAR PRATO*\n\n${DIVIDER}\n\nMe manda a *foto do seu prato* — é só isso, eu cuido do resto. 📸`);
@@ -144,6 +172,10 @@ export async function main(remote_jid: string, interactive_id?: string) {
       }
 
       if (interactive_id === "action_coach") {
+          if (!trainingLocation) {
+              await sendLocationQuestion();
+              return { success: true, handled_click: true };
+          }
           await supabase.from("whatsapp_sessions").update({ state: "AWAITING_BODY_PHOTO" }).eq("phone_number", remote_jid.replace(/\D/g, ""));
           await sendWhatsAppMessage(`🏋️  *DIETA E TREINO*\n\n${DIVIDER}\n\nMe manda uma *foto do seu corpo inteiro*, de frente, com roupa de treino — eu monto seu plano completo. 📸`);
           return { success: true, handled_click: true, new_state: "AWAITING_BODY_PHOTO" };

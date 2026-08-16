@@ -34,6 +34,7 @@ export default function Header() {
             <a href="#viora" className="header-nav-link">Ecossistema Viora</a>
             <a href="#quiz" className="header-nav-link">Faça o Teste</a>
             <a href="#metodo" className="header-nav-link">O Método</a>
+            <a href="/painel" className="header-nav-link">Minha Área</a>
             <a href="#oferta" className="header-cta">Quero Renascer</a>
           </nav>
         </div>
