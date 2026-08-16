@@ -221,13 +221,22 @@ export default function PainelPage() {
               )}
 
               {account.includesViora && (
-                <a
-                  href={`${VIORA_APP_URL}/dashboard`}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!session?.access_token || !session?.refresh_token) return;
+                    const hash = new URLSearchParams({
+                      access_token: session.access_token,
+                      refresh_token: session.refresh_token,
+                      next: '/dashboard',
+                    }).toString();
+                    window.location.href = `${VIORA_APP_URL}/auth/bridge#${hash}`;
+                  }}
                   className="header-cta"
                   style={{ width: '100%', justifyContent: 'center', marginTop: '1rem' }}
                 >
                   Acessar o Viora <ExternalLink size={16} />
-                </a>
+                </button>
               )}
 
               {!account.plan && (
