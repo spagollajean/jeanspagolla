@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
-  Loader2, Mail, Eye, EyeOff, LogOut, ArrowRight,
+  Loader2, Mail, Lock, Eye, EyeOff, LogOut, ArrowRight,
   FileText, Download, CreditCard, AlertTriangle, ExternalLink, CheckCircle2,
 } from 'lucide-react';
 
@@ -159,7 +159,7 @@ export default function PainelPage() {
                 />
               </div>
               <div className="checkout-input-wrap">
-                <Eye style={{ opacity: 0 }} />
+                <Lock />
                 <input
                   className="checkout-input"
                   type={showPassword ? 'text' : 'password'}
