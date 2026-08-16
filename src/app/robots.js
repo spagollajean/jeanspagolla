@@ -3,6 +3,7 @@ export default function robots() {
     rules: {
       userAgent: '*',
       allow: '/',
+      disallow: ['/api/', '/painel'],
     },
     sitemap: 'https://www.jeanspagolla.com.br/sitemap.xml',
   };

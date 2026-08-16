@@ -1115,6 +1115,7 @@ section { position: relative; }
 .checkout-form-col { background: var(--dark-0); padding: clamp(1.8rem, 4vw, 2.6rem); display: flex; flex-direction: column; justify-content: center; min-height: 460px; }
 
 .checkout-logo { font-family: var(--font-serif); font-weight: 600; font-size: 1.2rem; color: var(--bone); display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.6rem; }
+.checkout-logo em { font-style: italic; color: var(--ochre-bright); }
 
 .checkout-plan-toggle { display: flex; gap: 0.5rem; background: var(--dark-2); border: 1px solid var(--line-dark); border-radius: var(--radius); padding: 0.3rem; }
 .checkout-plan-toggle__btn {
