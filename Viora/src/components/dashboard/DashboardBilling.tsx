@@ -49,7 +49,7 @@ export default function DashboardBilling({ user }: DashboardBillingProps) {
           </div>
           <div>
             <h2 className="text-lg font-bold text-gray-900">Histórico de Transações</h2>
-            <p className="text-gray-500 text-sm">Faturas processadas com segurança pela Efí.</p>
+            <p className="text-gray-500 text-sm">Faturas processadas com segurança pela Stripe.</p>
           </div>
         </div>
 
@@ -63,7 +63,7 @@ export default function DashboardBilling({ user }: DashboardBillingProps) {
               <DollarSign size={20} />
             </div>
             <p className="text-gray-400 text-sm">Nenhum pagamento registrado ainda.</p>
-            <p className="text-gray-400 text-xs mt-1">As cobranças de teste aparecerão aqui após serem confirmadas no Sandbox.</p>
+            <p className="text-gray-400 text-xs mt-1">Suas cobranças aparecerão aqui assim que forem confirmadas.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
