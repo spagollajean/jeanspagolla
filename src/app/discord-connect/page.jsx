@@ -36,6 +36,21 @@ function DiscordConnectInner() {
 
   if (status === 'success') {
     const goToViora = params.get('next') === 'viora';
+
+    const handleOpenViora = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token || !session?.refresh_token) {
+        window.location.href = `${VIORA_APP_URL}/dashboard`;
+        return;
+      }
+      const hash = new URLSearchParams({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+        next: '/dashboard',
+      }).toString();
+      window.location.href = `${VIORA_APP_URL}/auth/bridge#${hash}`;
+    };
+
     return (
       <div className="checkout-page">
         <div className="checkout-card" style={{ gridTemplateColumns: '1fr' }}>
@@ -49,10 +64,13 @@ function DiscordConnectInner() {
               Entrar no Discord
             </a>
             {goToViora && (
-              <a href={`${VIORA_APP_URL}/dashboard`} className="btn btn--outline btn--block" style={{ marginTop: '0.8rem' }}>
+              <button type="button" onClick={handleOpenViora} className="btn btn--outline btn--block" style={{ marginTop: '0.8rem' }}>
                 Acessar o Viora
-              </a>
+              </button>
             )}
+            <a href="/painel" style={{ color: 'var(--bone-faint)', fontSize: '0.8rem', display: 'inline-block', marginTop: '1rem' }}>
+              Ir pra Minha Área
+            </a>
           </div>
         </div>
       </div>
@@ -67,10 +85,25 @@ function DiscordConnectInner() {
           <p style={{ color: 'var(--bone-soft)', fontSize: '0.92rem', marginTop: '0.6rem' }}>
             Falta só isso pra liberar seu acesso à comunidade — conecta sua conta do Discord pra gente te dar o cargo de assinante automaticamente.
           </p>
+
+          <div style={{ background: 'var(--dark-2)', border: '1px solid var(--line-dark)', borderRadius: 'var(--radius)', padding: '0.9rem 1.1rem', marginTop: '1.2rem', textAlign: 'left' }}>
+            <p style={{ color: 'var(--bone-faint)', fontSize: '0.8rem', lineHeight: 1.5 }}>
+              <strong style={{ color: 'var(--bone-soft)' }}>Ainda não tem conta no Discord?</strong> Crie uma primeiro (com e-mail ou telefone verificado) e depois volte pra essa página.
+            </p>
+            <a href="https://discord.com/register" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--viora-emerald)', fontSize: '0.82rem', fontWeight: 600, display: 'inline-block', marginTop: '0.4rem' }}>
+              Criar conta no Discord →
+            </a>
+          </div>
+
           {error && <div className="checkout-error" style={{ marginTop: '1.2rem' }}>{error}</div>}
+
           <button type="button" onClick={handleConnect} disabled={connecting} className="btn btn--viora btn--block" style={{ marginTop: '1.4rem' }}>
             {connecting ? <><Loader2 size={16} className="checkout-loading" style={{ padding: 0 }} /> Redirecionando...</> : 'Conectar Discord'}
           </button>
+
+          <a href="/painel" style={{ color: 'var(--bone-faint)', fontSize: '0.8rem', display: 'inline-block', marginTop: '1rem' }}>
+            Prefiro fazer isso depois, ir pra Minha Área
+          </a>
         </div>
       </div>
     </div>
